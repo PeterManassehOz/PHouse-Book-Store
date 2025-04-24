@@ -26,13 +26,27 @@ const Login = () => {
   const onSubmit = async (data) => {
     try {
       const response = await loginUser(data).unwrap();
-      localStorage.setItem('token', response.token);
-      console.log('token', response.token);
+  
+      // Store token only if available
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+        console.log('token', response.token);
+      }
+  
       localStorage.setItem('phcode', data.phcode);
-
-     if (!response.user.profileCompleted) {
+  
+      // Store email from the correct place (either from user or direct email)
+      const userEmail = response.user?.email || response.email;
+      if (userEmail) {
+        localStorage.setItem('email', userEmail);
+      }
+  
+      if (response.requireOtpVerification || response.needsVerification) {
+        toast.info("Please verify OTP");
+        navigate('/verify-otp'); 
+      } else if (!response.user?.profileCompleted) {
         navigate('/user-dashboard');
-         } else {
+      } else {
         navigate('/');
       }
     } catch (error) {
@@ -40,6 +54,7 @@ const Login = () => {
       toast.error(error?.data?.message || "Login failed");
     }
   };
+  
 
   return (
     <div className={`min-h-screen flex items-center justify-center ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"}`}>

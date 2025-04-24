@@ -34,13 +34,12 @@ const Signup = () => {
     try {
       const response = await registerUser(data).unwrap();
       localStorage.setItem('token', response.token);
-      localStorage.setItem('phcode', data.phcode); // Store email in localStorage
+      localStorage.setItem('phcode', data.phcode);
+      localStorage.setItem('email', data.email);
       console.log(data);
-      if (!response.user.profileCompleted) {
-        navigate('/user-dashboard');  // Redirect to complete profile
-      } else {
-       navigate('/home'); // Redirect to home
-      }
+      toast.success("Signup successful. Please check your email to verify OTP.");
+
+      navigate('/verify-otp');
     } catch (error) {
       console.error(error);
       toast.error(error?.data?.message || "Registration failed");

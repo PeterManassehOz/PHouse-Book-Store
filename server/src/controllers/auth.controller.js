@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const { sendOtp, checkOtp } = require("../services/otp.service");
+
 
 
 const transporter = nodemailer.createTransport({
@@ -18,50 +20,94 @@ const transporter = nodemailer.createTransport({
 
 
 const registerUser = async (req, res) => {
-    try {
-        const { firstname, lastname, email, phcode, state, password, confirmPassword } = req.body;
-
-        if (password !== confirmPassword) {
-            return res.status(400).json({ message: 'Passwords do not match' });
-        }
-
-        // Create user instance (without password yet)
-        const user = new User({ firstname, lastname, email, phcode, state});
-
-        // Get hashed password and token
-        const { hashedPassword, token } = await generateTokenPassword(user, password);
-
-        // Assign the hashed password and save user
-        user.password = hashedPassword;
-        await user.save();
-
-        res.status(201).json({ token, user });
-    } catch (error) {
-        res.status(400).json({ message: error.message });
+  try {
+    const { firstname, lastname, email, phcode, state, password, confirmPassword } = req.body;
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
     }
+
+    const existing = await User.findOne({ email });
+    if (existing) return res.status(400).json({ message: "Email in use" });
+
+    // hash & store password
+    const user = new User({ firstname, lastname, email, phcode, state, emailVerified: false });
+    const { hashedPassword } = await generateTokenPassword(user, password);
+    user.password = hashedPassword;
+    await user.save();
+
+    // now send OTP
+    await sendOtp(email);
+
+    // client must next call /auth/verify-otp
+    res.status(201).json({
+      message: "Registered! Check your email for a one-time code.",
+      email,
+      needsVerification: true,
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
 };
 
 
 
 const loginUser = async (req, res) => {
-    try {
-        const { phcode, password } = req.body;
+  try {
+    const { phcode, password } = req.body;
+    const user = await User.findOne({ phcode });
+    if (!user) return res.status(400).json({ message: "Invalid phcode or password" });
 
-        // 🔹 Find user by phcode
-        const user = await User.findOne({ phcode });
-        if (!user) {
-            return res.status(400).json({ message: 'Invalid phcode or password' });
-        }
+    // verify password
+    await verifyPasswordAndGenerateToken(user, password);
 
-        // 🔹 Verify password and get token
-        const { token } = await verifyPasswordAndGenerateToken(user, password);
-
-        res.status(200).json({ token, user });
-    } catch (error) {
-        res.status(400).json({ message: error.message });
+    // if email not yet verified, re-send OTP
+    if (!user.emailVerified) {
+      await sendOtp(user.email);
+      return res.status(200).json({
+        message: "Enter the code we just emailed you.",
+        email: user.email,
+        needsVerification: true,
+      });
     }
+
+    // else fully authenticated
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+    res.status(200).json({ token, user });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
 };
 
+
+const verifyOtp = async (req, res) => {
+  const { email, otp } = req.body;
+  try {
+    const user = await checkOtp(email, otp);
+    // now issue real JWT
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+    res.status(200).json({ message: "Email confirmed!", token, user });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+
+
+const resendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    await sendOtp(email);
+    res.status(200).json({ message: "OTP sent to email." });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
 
 
 const resetUserPassword = async (req, res) => {
@@ -171,4 +217,4 @@ const resetPasswordWithToken = async (req, res) => {
 };
 
 
-module.exports = { registerUser, loginUser, resetUserPassword, forgotPassword, resetPasswordWithToken };
+module.exports = { registerUser, loginUser, verifyOtp, resendOtp, resetUserPassword, forgotPassword, resetPasswordWithToken };

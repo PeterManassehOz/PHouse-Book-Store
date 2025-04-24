@@ -80,7 +80,7 @@ const AssignAdminRole = () => {
             <input
               type="text"
               id="phcode"
-              placeholder="Phone Code"
+              placeholder="PH Code"
               {...register('phcode')}
               className={`w-full p-3 mb-3 rounded-md border-none focus:ring-2 focus:ring-amber-200 focus:outline-none ${darkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"}`}
             />

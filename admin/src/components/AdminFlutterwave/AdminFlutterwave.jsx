@@ -29,7 +29,7 @@ const Flutterwave = () => {
   }
 
   return (
-    <div className={`p-6 rounded-lg shadow-md ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-800'}`}>
+    <div className={`p-6 rounded-lg shadow-md ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-800'}`}>
       <h2 className="text-2xl font-bold mb-6 border-b pb-2 border-gray-300 dark:border-gray-700">
         Your Transactions
       </h2>

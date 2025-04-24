@@ -59,7 +59,7 @@ const ManageBook = () => {
     <div
       className={`
         min-h-screen flex items-center justify-center
-        ${darkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"}
+        ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}
       `}
     >
       <div
