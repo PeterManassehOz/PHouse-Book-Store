@@ -7,11 +7,12 @@ import { useSelector } from 'react-redux';
 import Profile from '../../components/Profile/Profile';
 import Orders from '../../components/Orders/Orders';
 import { IoIosPerson } from 'react-icons/io';
-import { GrAggregate } from "react-icons/gr";
+import { FaFileInvoice } from "react-icons/fa6";
 import { MdLockReset } from "react-icons/md";
 import { TbCurrencyNaira } from "react-icons/tb";
 import useUserProfile from "../../hooks/useUserProfile";
 import UserTransactions from '../../components/UserTransactions/UserTransactions';
+import LivingSeed from "/LSeed-Logo-1.png";
 
 
 
@@ -50,9 +51,8 @@ const UserDashboard = () => {
           ${darkMode ? "bg-amber-900 text-white" : "bg-amber-900 text-white"}
           ${selectedComponent ? "hidden md:flex" : "flex"}`}> 
         <div>
-          <div onClick={() => navigate("/")} className="flex items-center gap-2 text-lg font-bold cursor-pointer">
-            <IoHome className={`text-xl ${darkMode ? "text-white" : "text-white"}`} />
-            <span>PHouse Studies</span>
+          <div className="flex justify-center items-center cursor-pointer" >
+              <img src={LivingSeed} alt="Logo" className="w-30 sm:w-30 h-10 bg-white p-1 rounded-full shadow-md shadow-black backdrop-blur-md bg-opacity-30"  onClick={() => navigate("/")}/>
           </div>
           <hr className="my-4 border-white" />
           <ul className="space-y-3">
@@ -60,7 +60,7 @@ const UserDashboard = () => {
               <IoIosPerson className={`text-xl ${darkMode ? "text-white" : " text-white"}`} /> Profile
             </li>
             <li onClick={() => handleComponentChange("orders")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-600 rounded">
-              <GrAggregate className={`text-xl ${darkMode ? "text-white" : " text-white"}`} /> Orders
+              <FaFileInvoice className={`text-xl ${darkMode ? "text-white" : " text-white"}`} /> Orders
             </li>
             <li onClick={() => handleComponentChange("user-transactions")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-600 rounded">
               <TbCurrencyNaira className={`text-xl ${darkMode ? "text-white" : " text-white"}`} /> Transactions

@@ -10,10 +10,11 @@ import AssignAdminRole from "../../components/AssignAdminRole/AssignAdminRole";
 import { MdAddShoppingCart, MdOutlineManageHistory } from "react-icons/md";
 import { GrAggregate } from "react-icons/gr";
 import { MdAssignmentInd } from "react-icons/md";
-import { FiActivity } from "react-icons/fi";
+import { TbCurrencyNaira } from "react-icons/tb";
 import { FaFileInvoice } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import DarkMode from "../../components/Darkmode/Darkmode";
+import LivingSeed from "/LSeed-Logo-1.png";
 
 
 
@@ -46,10 +47,9 @@ const AdminDashboard = () => {
           ${darkMode ? "bg-amber-900 text-white" : "bg-amber-900 text-white"}
           ${selectedComponent ? "hidden md:flex" : "flex"}`}> 
         <div>
-          <div className="flex items-center gap-2 text-lg font-bold cursor-pointer">
-            <IoHome className="text-xl" />
-            <span>PHouse Studies</span>
-          </div>
+           <div className="flex justify-center items-center">
+              <img src={LivingSeed} alt="Logo" className="w-30 sm:w-30 h-10 bg-white p-1 rounded-full shadow-md shadow-black backdrop-blur-md bg-opacity-30" />
+           </div>
           <hr className="my-4 border-white" />
           <ul className="space-y-3">
             <li onClick={() => handleComponentChange("aggregator")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
@@ -62,7 +62,7 @@ const AdminDashboard = () => {
               <MdOutlineManageHistory className="text-xl" /> Manage Books
             </li>
             <li onClick={() => handleComponentChange("transactions")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
-              <FiActivity  className="text-xl" /> Transactions
+              <TbCurrencyNaira  className="text-xl" /> Transactions
             </li>
             <li onClick={() => handleComponentChange("orders")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
               <FaFileInvoice  className="text-xl" /> Orders
@@ -87,7 +87,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Content Area */}
-      <div className={`flex-1 p-6 transition-all duration-300 w-full overflow-hidden ${selectedComponent ? "block" : "hidden md:block"} ${darkMode ? "bg-gray-900 text-white" : "bg-white text-black"} overflow-y-auto`}
+      <div className={`flex-1 p-6 transition-all duration-300 w-full overflow-hidden ${selectedComponent ? "block" : "hidden md:block"} ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"} overflow-y-auto`}
        style={{ height: "100vh" }}
       >
         {/* Back Button for Mobile */}

@@ -114,7 +114,7 @@ const Aggregator = () => {
 
   return (
     <div className={`rounded-lg p-6 mx-4 mt-6 shadow-lg transition-colors duration-300 ${
-      darkMode ? 'bg-gray-900 text-gray-200' : 'bg-white text-gray-800'
+      darkMode ? 'bg-gray-900 text-gray-200' : 'bg-gray-100 text-gray-800'
     }`}>
       <h2 className="text-2xl font-bold text-center mb-4">Platform Aggregated Statistics</h2>
 

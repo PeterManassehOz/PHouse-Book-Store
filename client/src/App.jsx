@@ -17,6 +17,7 @@ import TokenResetPassword from './components/TokenResetPassword/TokenResetPasswo
 import Orders from './components/Orders/Orders';
 import SingleAuthor from './components/SingleAuthor/SingleAuthor';
 import Status from './components/Status/Status';
+import VerifyOtp from './components/VerifyOtp/VerifyOtp';
 
 function App() {
   return (
@@ -54,6 +55,7 @@ const Layout = () => {
             <Route path='/orders' element={<Orders />} />
             <Route path='/author/:name' element={<SingleAuthor />} />
             <Route path="/status/:tx_id" element={<Status />} />
+            <Route path="/verify-otp" element={<VerifyOtp />} />
           </Routes>
       </div>
     
