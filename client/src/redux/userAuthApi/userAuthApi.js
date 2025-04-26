@@ -59,9 +59,9 @@ export const userAuthApi = createApi({
         }),
 
 
-    verifyOtp: builder.mutation({
+    verifyEmailOtp: builder.mutation({
       query: (otpData) => ({
-        url: '/verify-otp',
+        url: '/verify-email-otp',
         method: 'POST',
         body: otpData,
       }),
@@ -69,9 +69,28 @@ export const userAuthApi = createApi({
 
 
             
-    resendOtp: builder.mutation({
+    resendEmailOtp: builder.mutation({
       query: (userData) => ({
-        url: '/resend-otp',
+        url: '/resend-email-otp',
+        method: 'POST',
+        body: userData,
+      }),
+    }),
+
+    
+    verifyPhoneOtp: builder.mutation({
+      query: (otpData) => ({
+        url: '/verify-phone-otp',
+        method: 'POST',
+        body: otpData,
+      }),
+    }),
+
+
+            
+    resendPhoneOtp: builder.mutation({
+      query: (userData) => ({
+        url: '/resend-phone-otp',
         method: 'POST',
         body: userData,
       }),
@@ -80,5 +99,5 @@ export const userAuthApi = createApi({
     }),
 });
 
-export const { useRegisterUserMutation, useLoginUserMutation, useResetUserPasswordMutation, useForgotPasswordMutation, useResetPasswordWithTokenMutation, useResendOtpMutation, useVerifyOtpMutation } = userAuthApi;
+export const { useRegisterUserMutation, useLoginUserMutation, useResetUserPasswordMutation, useForgotPasswordMutation, useResetPasswordWithTokenMutation, useResendEmailOtpMutation, useVerifyEmailOtpMutation, useVerifyPhoneOtpMutation, useResendPhoneOtpMutation } = userAuthApi;
 export default userAuthApi;

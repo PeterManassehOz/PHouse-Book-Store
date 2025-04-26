@@ -78,7 +78,11 @@ const Profile = () => {
       
     try {
       const response = await updateProfile(formData).unwrap()
-      localStorage.setItem('token', response.token)
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+      }
+      console.log('Token:', response.token);
+      console.log("Profile Data:", data)      
       console.log("Profile Updated:", response)
 
       reset()  

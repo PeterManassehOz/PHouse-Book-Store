@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { useVerifyOtpMutation, useResendOtpMutation } from '../../redux/userAuthApi/userAuthApi';
+import { useVerifyPhoneOtpMutation, useResendPhoneOtpMutation } from '../../redux/userAuthApi/userAuthApi';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
@@ -7,21 +7,21 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { useEffect, useState } from 'react';
 
-const VerifyOtp = () => {
+const VerifyOtpWithPhone = () => {
   const schema = yup.object().shape({
-    otp: yup.string().required("OTP is required"),
+    phoneOtp: yup.string().required("OTP is required"),
   });
 
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
 
-  const [verifyOtp, { isLoading }] = useVerifyOtpMutation();
-  const [resendOtp, { isLoading: resendLoading }] = useResendOtpMutation();
+  const [verifyPhoneOtp, { isLoading }] = useVerifyPhoneOtpMutation();
+  const [resendPhoneOtp, { isLoading: resendLoading }] = useResendPhoneOtpMutation();
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
 
   const navigate = useNavigate();
   const darkMode = useSelector((state) => state.theme.darkMode);
-  const email = localStorage.getItem('email');
+  const phonenumber = localStorage.getItem('phonenumber');
 
   useEffect(() => {
     let interval;
@@ -44,10 +44,12 @@ const VerifyOtp = () => {
       return;
     }
     const email = localStorage.getItem('email');
+    const phonenumber = localStorage.getItem('phonenumber');
     try {
-      const response = await verifyOtp({
+      const response = await verifyPhoneOtp({
+        phonenumber,
         email,
-        otp: data.otp,
+        phoneOtp: data.phoneOtp,
         phcode, // optional if you want to store it
       }).unwrap();
   
@@ -84,7 +86,7 @@ const VerifyOtp = () => {
 
   const handleResendOtp = async () => {
     try {
-      await resendOtp({ email }).unwrap();
+      await resendPhoneOtp({ phonenumber }).unwrap();
       toast.success("OTP resent successfully");
       setTimer(60);
       setCanResend(false);
@@ -99,13 +101,13 @@ const VerifyOtp = () => {
         onSubmit={handleSubmit(onSubmit)}
         className={`w-full max-w-md p-8 shadow-md rounded-lg ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"}`}
       >
-        <h2 className="text-2xl font-semibold text-center mb-6">Verify OTP</h2>
+        <h2 className={`text-2xl font-semibold text-center mb-6 ${darkMode ? "text-white" : "text-black" }`}>Verify Phone OTP</h2>
 
         <input
           className={`w-full p-3 mb-3 rounded-md border-none focus:ring-2 focus:ring-amber-200 focus:outline-none ${darkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"}`}
           type="text"
           placeholder="Enter OTP"
-          {...register("otp")}
+          {...register("phoneOtp")}
         />
         {errors.otp && <p className="text-red-500 text-sm">{errors.otp.message}</p>}
 
@@ -132,4 +134,4 @@ const VerifyOtp = () => {
   );
 };
 
-export default VerifyOtp;
+export default VerifyOtpWithPhone;

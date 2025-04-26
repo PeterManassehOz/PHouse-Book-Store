@@ -17,7 +17,10 @@ import TokenResetPassword from './components/TokenResetPassword/TokenResetPasswo
 import Orders from './components/Orders/Orders';
 import SingleAuthor from './components/SingleAuthor/SingleAuthor';
 import Status from './components/Status/Status';
-import VerifyOtp from './components/VerifyOtp/VerifyOtp';
+import VerifyOtpWithEmail from './components/VerifyOtpWithEmail/VerifyOtpWithEmail';
+import VerifyOtpWithPhone from './components/VerifyOtpWithPhone/VerifyOtpWithPhone';
+import ChooseVerification from './components/ChooseVerification/ChooseVerification';
+import MobileViewAuthorYear from './components/MobileViewAuthorYear/MobileViewAuthorYear';
 
 function App() {
   return (
@@ -55,7 +58,10 @@ const Layout = () => {
             <Route path='/orders' element={<Orders />} />
             <Route path='/author/:name' element={<SingleAuthor />} />
             <Route path="/status/:tx_id" element={<Status />} />
-            <Route path="/verify-otp" element={<VerifyOtp />} />
+            <Route path="/verify-email-otp" element={<VerifyOtpWithEmail />} />
+            <Route path="/verify-phone-otp" element={<VerifyOtpWithPhone />} />
+            <Route path="/choose-verification" element={<ChooseVerification />} />
+            <Route path='/mobile-view-author-year' element={<MobileViewAuthorYear />} />
           </Routes>
       </div>
     
