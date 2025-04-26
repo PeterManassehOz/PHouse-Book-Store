@@ -6,12 +6,15 @@ import { toast } from 'react-toastify'
 import { useSelector } from 'react-redux'
 import { useLoginUserMutation } from '../../redux/userAuthApi/userAuthApi'
 
+
+
+const schema = yup.object().shape({
+  phcode: yup.string().required("PH code is required"),
+  password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
+  term: yup.boolean().oneOf([true], "You must agree to the terms"),
+});
+
 const Login = () => {
-  const schema = yup.object().shape({
-    phcode: yup.string().required("PH code is required"),
-    password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
-    term: yup.boolean().oneOf([true], "You must agree to the terms"),
-  });
 
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
 
@@ -25,35 +28,62 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await loginUser(data).unwrap();
+      // 1) Call the RTK query
+      const {
+        token,
+        user,
+        needsVerification,
+        nextStep,
+        email: returnedEmail,
+        phonenumber: returnedPhone,
+      } = await loginUser(data).unwrap();
   
-      // Store token only if available
-      if (response.token) {
-        localStorage.setItem('token', response.token);
-        console.log('token', response.token);
+      // 2) If we got a token back, we’re fully authenticated
+      if (token) {
+        localStorage.setItem('token', token);
+        // save phcode for future calls
+        localStorage.setItem('phcode', data.phcode);
+        
+        return user.profileCompleted
+          ? navigate('/')             // everything’s done
+          : navigate('/user-dashboard'); // complete profile
       }
   
-      localStorage.setItem('phcode', data.phcode);
+      // 3) Otherwise we need verification
+      if (needsVerification) {
+        // always save phcode
+        localStorage.setItem('phcode', data.phcode);
   
-      // Store email from the correct place (either from user or direct email)
-      const userEmail = response.user?.email || response.email;
-      if (userEmail) {
-        localStorage.setItem('email', userEmail);
+        // pick the right contact info
+        if (nextStep === 'verify-email' || nextStep === 'choose') {
+          localStorage.setItem('email', returnedEmail);
+        }
+        if (nextStep === 'verify-phone' || nextStep === 'choose') {
+          localStorage.setItem('phonenumber', returnedPhone);
+        }
+  
+        toast.info('Please complete verification');
+  
+        switch (nextStep) {
+          case 'choose':
+            return navigate('/choose-verification');
+          case 'verify-email':
+            return navigate('/verify-email-otp');
+          case 'verify-phone':
+            return navigate('/verify-phone-otp');
+          default:
+            return navigate('/verify-otp');
+        }
       }
   
-      if (response.requireOtpVerification || response.needsVerification) {
-        toast.info("Please verify OTP");
-        navigate('/verify-otp'); 
-      } else if (!response.user?.profileCompleted) {
-        navigate('/user-dashboard');
-      } else {
-        navigate('/');
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error(error?.data?.message || "Login failed");
+      // 4) Fallback
+      navigate('/');
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.data?.message || 'Login failed');
     }
   };
+  
   
 
   return (
@@ -93,7 +123,7 @@ const Login = () => {
         <div className={`text-center mt-4 ${darkMode ? "text-white" : "text-gray-600" }`}>
           <p>Don&apos;t have an account? <Link to="/signup" className={`${darkMode ? "text-amber-500" : "text-amber-700" }`}>Sign up</Link></p>
           <p>Forgot password? <Link to="/forgot-password" className={`${darkMode ? "text-amber-500" : "text-amber-700" }`}>Reset</Link></p>
-        </div>
+        </div> 
       </form>
     </div>
   )

@@ -12,12 +12,11 @@ const Signup = () => {
     lastname: yup.string().required('Last name is required'),
     email: yup.string().email('Invalid email').required('Email is required'),
     phcode: yup.string().required('PH code is required'),
+    phonenumber: yup.string().required('Phone number is required')
+    .matches(/^\+?\d{7,15}$/, 'Enter a valid phone number'),
     state: yup.string().required('State is required'),
     password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
-    confirmPassword: yup
-      .string()
-      .oneOf([yup.ref('password'), null], 'Passwords must match')
-      .required('Confirm password is required'),
+    confirmPassword: yup.string().oneOf([yup.ref('password'), null], 'Passwords must match').required('Confirm password is required'),
     terms: yup.boolean().oneOf([true], 'You must agree to the terms and conditions'),
   });
 
@@ -31,15 +30,36 @@ const Signup = () => {
 
 
   const onSubmit = async (data) => {
+    data.phonenumber = "+15005550006"; // for testing purposes, remove this line in production
+
+    // 1) Format the phone into E.164
+    let phone = data.phonenumber.trim();
+    if (!phone.startsWith('+')) {
+      // assume local Nigerian number starting with '0'
+      if (phone.startsWith('0')) {
+        phone = '+234' + phone.slice(1);
+      } else {
+        // fallback: just prefix '+'
+        phone = '+' + phone;
+      }
+    }
+
+    // 2) Build the payload with formatted phone
+    const payload = {
+      ...data,
+      phonenumber: phone,
+    };
+
     try {
-      const response = await registerUser(data).unwrap();
+      const response = await registerUser(payload).unwrap();
       localStorage.setItem('token', response.token);
       localStorage.setItem('phcode', data.phcode);
       localStorage.setItem('email', data.email);
+      localStorage.setItem('phonenumber', data.phonenumber);
       console.log(data);
-      toast.success("Signup successful. Please check your email to verify OTP.");
-
-      navigate('/verify-otp');
+      
+      toast.success('Signup successful! Now choose how to verify.');
+      navigate('/choose-verification');
     } catch (error) {
       console.error(error);
       toast.error(error?.data?.message || "Registration failed");
@@ -88,6 +108,14 @@ const Signup = () => {
 
         <input 
           className={`w-full p-3 mb-3 rounded-md border-none focus:ring-2 focus:ring-amber-200 focus:outline-none ${darkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"}`}
+          type="number" 
+          placeholder="+234 1234567890 or 0123456789" 
+          {...register("phonenumber")} 
+        />
+        {errors.phonenumber && <p className="text-red-500 text-sm">{errors.phonenumber.message}</p>}
+
+        <input 
+          className={`w-full p-3 mb-3 rounded-md border-none focus:ring-2 focus:ring-amber-200 focus:outline-none ${darkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"}`}
           type="text" 
           placeholder="State" 
           {...register("state")} 
@@ -109,6 +137,8 @@ const Signup = () => {
           {...register("confirmPassword")} 
         />
         {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>}
+
+
 
         <div className="flex items-center mb-4">
           <input className="mr-2 active:accent-amber-800 accent-amber-200 cursor-pointer" type="checkbox" {...register("terms")} />

@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-const { sendOtp, checkOtp } = require("../services/otp.service");
+const { sendEmailOtp, checkEmailOtp, sendPhoneOtp, checkPhoneOtp } = require("../services/otp.service");
 
 
 
@@ -19,30 +19,39 @@ const transporter = nodemailer.createTransport({
 });
 
 
+
 const registerUser = async (req, res) => {
   try {
-    const { firstname, lastname, email, phcode, state, password, confirmPassword } = req.body;
+    const { firstname, lastname, email, phonenumber, phcode, state, password, confirmPassword } = req.body;
+
     if (password !== confirmPassword) {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
     const existing = await User.findOne({ email });
-    if (existing) return res.status(400).json({ message: "Email in use" });
+    if (existing) return res.status(400).json({ message: "Email already in use" });
 
-    // hash & store password
-    const user = new User({ firstname, lastname, email, phcode, state, emailVerified: false });
+    const user = new User({
+      firstname,
+      lastname,
+      email,
+      phonenumber,
+      phcode,
+      state,
+      emailVerified: false,
+      phoneVerified: false,
+    });
+
     const { hashedPassword } = await generateTokenPassword(user, password);
     user.password = hashedPassword;
     await user.save();
 
-    // now send OTP
-    await sendOtp(email);
-
-    // client must next call /auth/verify-otp
     res.status(201).json({
-      message: "Registered! Check your email for a one-time code.",
-      email,
+      message: "Registered! Now choose how you’d like to be verified.",
       needsVerification: true,
+      nextStep: "choose",
+      email: user.email,
+      phonenumber: user.phonenumber,
     });
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -51,63 +60,139 @@ const registerUser = async (req, res) => {
 
 
 
+
+
 const loginUser = async (req, res) => {
   try {
     const { phcode, password } = req.body;
+
     const user = await User.findOne({ phcode });
     if (!user) return res.status(400).json({ message: "Invalid phcode or password" });
 
-    // verify password
     await verifyPasswordAndGenerateToken(user, password);
 
-    // if email not yet verified, re-send OTP
-    if (!user.emailVerified) {
-      await sendOtp(user.email);
-      return res.status(200).json({
-        message: "Enter the code we just emailed you.",
-        email: user.email,
-        needsVerification: true,
-      });
+    // 🔁 Check verification status
+    const isEmailVerified = user.emailVerified;
+    const isPhoneVerified = user.phoneVerified;
+
+    if (isEmailVerified && isPhoneVerified) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+      return res.status(200).json({ token, user });
     }
 
-    // else fully authenticated
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-    res.status(200).json({ token, user });
+    // 🚦 At least one verification is pending
+    let nextStep = "verify";
+
+    if (!isEmailVerified && !isPhoneVerified) {
+      nextStep = "choose"; // Ask user which method they prefer to verify
+    } else if (!isPhoneVerified) {
+      await sendPhoneOtp(user.phonenumber);
+      nextStep = "verify-phone";
+    } else if (!isEmailVerified) {
+      await sendEmailOtp(user.email);
+      nextStep = "verify-email";
+    }
+
+    return res.status(200).json({
+      message: "Verification required",
+      email: user.email,
+      phonenumber: user.phonenumber,
+      needsVerification: true,
+      nextStep, // 👈 can be 'verify-email', 'verify-phone', or 'choose'
+    });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
 
 
-const verifyOtp = async (req, res) => {
-  const { email, otp } = req.body;
+
+
+// =========================
+// Verify Email OTP
+// =========================
+const verifyEmailOtp = async (req, res) => {
+  const { email, emailOtp } = req.body;
   try {
-    const user = await checkOtp(email, otp);
-    // now issue real JWT
+    const user = await checkEmailOtp(email, emailOtp);
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-    res.status(200).json({ message: "Email confirmed!", token, user });
+    res.status(200).json({ message: "Email verified!", token, user });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
 
-
-
-const resendOtp = async (req, res) => {
+// =========================
+// Resend Email OTP
+// =========================
+const resendEmailOtp = async (req, res) => {
   try {
     const { email } = req.body;
-
     if (!email) return res.status(400).json({ message: "Email is required" });
 
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    await sendOtp(email);
+    await sendEmailOtp(email);
     res.status(200).json({ message: "OTP sent to email." });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
+
+
+const verifyPhoneOtp = async (req, res) => {
+  const { phonenumber, phoneOtp } = req.body;
+  console.log("Verifying phone OTP:", { phonenumber, phoneOtp });
+  try {
+    const user = await checkPhoneOtp(phonenumber, phoneOtp);
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+    res.status(200).json({ message: "Phone number verified!", token, user });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+
+// Uncomment for production mode
+/*const resendPhoneOtp = async (req, res) => {
+  try {
+    const { phonenumber } = req.body;
+    if (!phonenumber) return res.status(400).json({ message: "Phone number is required" });
+
+    const user = await User.findOne({ phonenumber });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    await sendPhoneOtp(phonenumber);
+
+    res.status(200).json({ message: "OTP sent to phone number."}); 
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+*/
+
+
+//Dev only
+const resendPhoneOtp = async (req, res) => {
+  try {
+    const { phonenumber } = req.body;
+    if (!phonenumber) return res.status(400).json({ message: "Phone number is required" });
+
+    const user = await User.findOne({ phonenumber });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    //await sendPhoneOtp(phonenumber);
+
+    const phoneOtp = await sendPhoneOtp(phonenumber); // Send OTP and log it
+    res.status(200).json({ message: "OTP sent to phone number.", phoneOtp }); // Include OTP in the response for logging purposes
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+
 
 
 const resetUserPassword = async (req, res) => {
@@ -217,4 +302,4 @@ const resetPasswordWithToken = async (req, res) => {
 };
 
 
-module.exports = { registerUser, loginUser, verifyOtp, resendOtp, resetUserPassword, forgotPassword, resetPasswordWithToken };
+module.exports = { registerUser, loginUser, verifyEmailOtp, resendEmailOtp, verifyPhoneOtp, resendPhoneOtp, resetUserPassword, forgotPassword, resetPasswordWithToken };

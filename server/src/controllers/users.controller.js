@@ -1,5 +1,8 @@
 const User = require('../models/users.model');
 const path = require('path'); // Import path module if not already imported
+const jwt = require('jsonwebtoken');
+
+
 
 // @desc Get user profile
 // @route GET /api/users/profile
@@ -30,7 +33,17 @@ exports.updateUserProfile = async (req, res) => {
 
         user.profileCompleted = true;
         await user.save();
-        res.json({ message: 'Profile updated successfully' });
+
+        const token = jwt.sign(
+            { id: user._id, isAdmin: user.isAdmin },
+            process.env.JWT_SECRET,
+            { expiresIn: '1d' }
+        );
+
+        res.json({
+            message: 'Profile updated successfully',
+            token, // Send token back in the response
+        });
     } else {
         res.status(404).json({ message: 'User not found' });
     }

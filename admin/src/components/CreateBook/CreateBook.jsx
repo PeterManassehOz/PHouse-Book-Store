@@ -110,7 +110,7 @@ const CreateBook = () => {
   };
 
   return (
-    <div className={`max-w-3xl mx-auto p-6 shadow-md rounded-lg mt-20 ${darkMode ? "bg-gray-800" : "bg-gray-100"}`}>
+    <div className={`max-w-3xl mx-auto p-6 shadow-md rounded-lg mt-20 ${darkMode ? "bg-gray-800" : "bg-white"}`}>
       <h2 className={`text-2xl font-semibold mb-6 text-center  ${darkMode ? "text-white" : "text-gray-800"}`}>Create New Book</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className={`space-y-4 rounded-lg ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"}`}>
