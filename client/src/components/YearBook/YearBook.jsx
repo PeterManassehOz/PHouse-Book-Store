@@ -45,7 +45,7 @@ const YearBook = () => {
     <h2 className="text-lg font-bold mb-4">Books of the Year</h2>
 
     {/* Stack of authors */}
-    <div className="space-y-2">
+    <div className="h-[28rem] overflow-y-auto space-y-2 pr-1 scrollbar-thin scrollbar-thumb-amber-600 scrollbar-track-amber-100">
         {yearBooks.map((yearBook, index) => (
           <div
           key={index}

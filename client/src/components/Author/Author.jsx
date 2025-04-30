@@ -30,7 +30,7 @@ const Author = () => {
       }`}
     >
       <h2 className="text-lg font-bold mb-4">Authors of the Week</h2>
-      <div className="space-y-2">
+      <div className="h-[28rem] overflow-y-auto space-y-2 pr-1 scrollbar-thin scrollbar-thumb-amber-600 scrollbar-track-amber-100">
         {authors.length === 0 ? (
           <div>No authors available</div>
         ) : (

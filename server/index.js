@@ -47,6 +47,7 @@ const bookRoutes = require('./src/routes/books.route');
 const adminRoutes = require('./src/routes/admin.route');
 const newsletterRoutes = require("./src/routes/newsletter.route");
 const flutterwaveRoutes = require('./src/routes/flutterwave.route');
+const adminOrdersRoutes = require('./src/routes/adminOrders.route');
 
 
 
@@ -60,6 +61,7 @@ app.use('/books', bookRoutes);
 app.use('/admin', adminRoutes);
 app.use('/newsletter', newsletterRoutes);
 app.use('/flutterwave', flutterwaveRoutes);
+app.use('/adminorders', adminOrdersRoutes);
 
 
 

@@ -170,6 +170,56 @@ const getAllTransactionsForStateAdmin = async (req, res) => {
   }
 };
 
+
+
+
+
+const getAllStatesTransactionsForChiefAdmin = async (req, res) => {
+  try {
+    const admin = req.user;
+    if (!admin.isAdmin || !admin.isChiefAdmin) {
+      return res.status(403).json({ message: 'Unauthorized.' });
+    }
+
+    const txns = await FlutterwaveTransaction.find({ state: { $ne: admin.state } })
+      .populate('userId', 'username image')
+      .sort({ paymentDate: -1 });
+
+    const byState = txns.reduce((acc, tx) => {
+      acc[tx.state] = acc[tx.state] || [];
+      acc[tx.state].push(tx);
+      return acc;
+    }, {});
+
+    res.status(200).json(byState);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const getTransactionsByStateForChiefAdmin = async (req, res) => {
+  try {
+    const admin = req.user;
+    const { state } = req.params;
+    if (!admin.isAdmin || !admin.isChiefAdmin) {
+      return res.status(403).json({ message: 'Unauthorized.' });
+    }
+
+    const txns = await FlutterwaveTransaction.find({ state })
+      .populate('userId', 'username image')
+      .sort({ paymentDate: -1 });
+
+    res.status(200).json(txns);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+
+
 module.exports = {
   saveTransaction,
   verifyTransaction,
@@ -177,4 +227,6 @@ module.exports = {
   handleWebhook,
   getUserTransactions,
   getAllTransactionsForStateAdmin,
+  getAllStatesTransactionsForChiefAdmin,
+  getTransactionsByStateForChiefAdmin,
 };

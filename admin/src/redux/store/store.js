@@ -4,6 +4,7 @@ import { adminBookAuthApi } from "../adminBookAuthApi/adminBookAuthApi";
 import adminAuthApi from "../adminAuthApi/adminAuthApi";
 import { flutterwaveAdminAuthApi } from '../flutterwaveAdminAuthApi/flutterwaveAdminAuthApi';
 import { adminOrderAuthApi } from "../adminOrderAuthApi/adminOrderAuthApi";
+import { ordersByAdminAuthApi } from "../ordersByAdminAuthApi/ordersByAdminAuthApi";
 
 const store = configureStore({
   reducer: {
@@ -11,10 +12,11 @@ const store = configureStore({
     [adminBookAuthApi.reducerPath]: adminBookAuthApi.reducer,
     [adminAuthApi.reducerPath]: adminAuthApi.reducer,
     [flutterwaveAdminAuthApi.reducerPath]: flutterwaveAdminAuthApi.reducer,
-    [adminOrderAuthApi.reducerPath]: adminOrderAuthApi.reducer
+    [adminOrderAuthApi.reducerPath]: adminOrderAuthApi.reducer,
+    [ordersByAdminAuthApi.reducerPath]: ordersByAdminAuthApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(adminBookAuthApi.middleware, adminAuthApi.middleware, flutterwaveAdminAuthApi.middleware, adminOrderAuthApi.middleware),
+    getDefaultMiddleware().concat(adminBookAuthApi.middleware, adminAuthApi.middleware, flutterwaveAdminAuthApi.middleware, adminOrderAuthApi.middleware, ordersByAdminAuthApi.middleware),
 });
 
 export default store;

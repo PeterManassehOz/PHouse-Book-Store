@@ -7,7 +7,7 @@ import ManageBook from "../../components/ManageBook/ManageBook";
 import Flutterwave from "../../components/AdminFlutterwave/AdminFlutterwave";
 import AdminOrders from "../../components/AdminOrders/AdminOrders";
 import AssignAdminRole from "../../components/AssignAdminRole/AssignAdminRole";
-import { MdAddShoppingCart, MdOutlineManageHistory } from "react-icons/md";
+import { MdBookmarkAdd, MdBookmarkAdded, MdBookmarks, MdOutlineBookmarkAdded, MdOutlineManageHistory } from "react-icons/md";
 import { GrAggregate } from "react-icons/gr";
 import { MdAssignmentInd } from "react-icons/md";
 import { TbCurrencyNaira } from "react-icons/tb";
@@ -15,6 +15,12 @@ import { FaFileInvoice } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import DarkMode from "../../components/Darkmode/Darkmode";
 import LivingSeed from "/LSeed-Logo-1.png";
+import StateAdminTransactions from "../../components/StateAdminTransactions/StateAdminTransactions";
+import StateAdminOrders from "../../components/StateAdminOrders/StateAdminOrders";
+import CreateAdminOrder from "../../components/CreateAdminOrder/CreateAdminOrder";
+import GetAdminOrders from "../../components/GetAdminOrders/GetAdminOrders";
+import GetAdminOrdersForChief from "../../components/GetAdminOrdersForChief/GetAdminOrdersForChief";
+import AdminOrderStatistics from "../../components/AdminOrderStatistics/AdminOrderStatistics";
 
 
 
@@ -24,6 +30,8 @@ import LivingSeed from "/LSeed-Logo-1.png";
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [selectedComponent, setSelectedComponent] = useState(null);
+  const [showBackButton, setShowBackButton] = useState(true);
+
 
   const darkMode = useSelector((state) => state.theme.darkMode);
 
@@ -48,15 +56,18 @@ const AdminDashboard = () => {
           ${selectedComponent ? "hidden md:flex" : "flex"}`}> 
         <div>
            <div className="flex justify-center items-center">
-              <img src={LivingSeed} alt="Logo" className="w-30 sm:w-30 h-10 bg-white p-1 rounded-full shadow-md shadow-black backdrop-blur-md bg-opacity-30" />
+              <img src={LivingSeed} alt="Logo" className="w-30 sm:w-30 h-10 bg-white p-1 rounded-full shadow-md shadow-black backdrop-blur-md bg-opacity-30 animate-bounce" />
            </div>
           <hr className="my-4 border-white" />
           <ul className="space-y-3">
             <li onClick={() => handleComponentChange("aggregator")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
               <GrAggregate className="text-xl" /> Aggregator
             </li>
+            <li onClick={() => handleComponentChange("adminaggregator")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
+              <GrAggregate className="text-xl" /> Admin Order Aggregator
+            </li>
             <li onClick={() => handleComponentChange("createbook")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
-              <MdAddShoppingCart className="text-xl" /> Create Book
+              <MdBookmarkAdd className="text-xl" /> Create Book
             </li>
             <li onClick={() => handleComponentChange("managebook")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
               <MdOutlineManageHistory className="text-xl" /> Manage Books
@@ -66,6 +77,21 @@ const AdminDashboard = () => {
             </li>
             <li onClick={() => handleComponentChange("orders")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
               <FaFileInvoice  className="text-xl" /> Orders
+            </li>
+            <li onClick={() => handleComponentChange("admintransactions")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
+              <TbCurrencyNaira className="text-xl" /> Transactions by State
+            </li>
+            <li onClick={() => handleComponentChange("adminorders")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
+              <FaFileInvoice className="text-xl" /> Orders by State
+            </li>
+            <li onClick={() => handleComponentChange("createadminorder")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
+              <MdBookmarkAdded className="text-xl" /> Create Admin Order
+            </li>
+            <li onClick={() => handleComponentChange("getadminorders")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
+              <MdOutlineBookmarkAdded className="text-xl" /> Get Admin Orders
+            </li>
+            <li onClick={() => handleComponentChange("getordersbychief")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
+              <MdBookmarks className="text-xl" /> Get admin order by Chief
             </li>
             <li onClick={() => handleComponentChange("assignadminrole")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
               <MdAssignmentInd className="text-xl" /> Assign Admin Role
@@ -91,7 +117,7 @@ const AdminDashboard = () => {
        style={{ height: "100vh" }}
       >
         {/* Back Button for Mobile */}
-        {selectedComponent && (
+        {selectedComponent && showBackButton && (
           <button onClick={goBack} className="md:hidden flex items-center gap-2 mb-4 py-4 px-4 text-white bg-amber-600 rounded-full hover:bg-amber-500">
             <IoArrowBack className="text-lg" />
           </button>
@@ -100,10 +126,20 @@ const AdminDashboard = () => {
         {/* Render Selected Component */}
         {!selectedComponent && <Aggregator />}
         {selectedComponent === "aggregator" && <Aggregator />}
+        {selectedComponent === "adminaggregator" && <AdminOrderStatistics />}
         {selectedComponent === "createbook" && <CreateBook />}
         {selectedComponent === "managebook" && <ManageBook />}
         {selectedComponent === "transactions" && <Flutterwave />}
+        {selectedComponent === "admintransactions" && (
+          <StateAdminTransactions onSubPage={(isSubPage) => setShowBackButton(!isSubPage)} />
+        )}
         {selectedComponent === "orders" && <AdminOrders />}
+        {selectedComponent === "adminorders" && (
+          <StateAdminOrders onSubPage={(isSubPage) => setShowBackButton(!isSubPage)} />
+        )}
+        {selectedComponent === "createadminorder" && <CreateAdminOrder />}
+        {selectedComponent === "getadminorders" && <GetAdminOrders />}
+        {selectedComponent === "getordersbychief" && (<GetAdminOrdersForChief onSubPage={(isSubPage) => setShowBackButton(!isSubPage)}/>)}
         {selectedComponent === "assignadminrole" && <AssignAdminRole />}
       </div>
     </div>

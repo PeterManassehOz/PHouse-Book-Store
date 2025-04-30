@@ -1,7 +1,5 @@
 const Order = require('../models/orders.model');
-
 const Book = require('../models/books.model');
-
 
 exports.createOrder = async (req, res) => {
     try {
@@ -115,3 +113,51 @@ exports.getOrderStatus = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+exports.getAllStatesOrdersForChiefAdmin = async (req, res) => {
+    try {
+      const admin = req.user;
+      if (!admin.isAdmin || !admin.isChiefAdmin) {
+        return res.status(403).json({ message: 'Unauthorized.' });
+      }
+  
+      // grab all orders NOT in the chief’s own state
+      const orders = await Order.find({ state: { $ne: admin.state } })
+        .populate('userId', 'firstname lastname email image')
+        .sort({ createdAt: -1 });
+  
+      // group by state
+      const byState = orders.reduce((acc, order) => {
+        acc[order.state] = acc[order.state] || [];
+        acc[order.state].push(order);
+        return acc;
+      }, {});
+  
+      res.status(200).json(byState);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: err.message });
+    }
+  };
+  
+  exports.getOrdersByStateForChiefAdmin = async (req, res) => {
+    try {
+      const admin = req.user;
+      const { state } = req.params;
+      if (!admin.isAdmin || !admin.isChiefAdmin) {
+        return res.status(403).json({ message: 'Unauthorized.' });
+      }
+  
+      // fetch just this state
+      const orders = await Order.find({ state })
+        .populate('userId', 'firstname lastname email image')
+        .populate('productIds', 'title author price image')
+        .sort({ createdAt: -1 });
+  
+      res.status(200).json(orders);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: err.message });
+    }
+  };

@@ -6,7 +6,9 @@ const {
   getUserTransactions,
   getAllTransactions,
   getAllTransactionsForStateAdmin,
-  handleWebhook
+  handleWebhook,
+  getAllStatesTransactionsForChiefAdmin,
+  getTransactionsByStateForChiefAdmin,
 } = require('../controllers/flutterwave.controller');
 const { protect } = require('../middleware/authMiddleware');
 const { adminProtect } = require('../middleware/adminProtect');
@@ -18,5 +20,7 @@ router.get('/transactions', getAllTransactions);
 router.get('/admin-transactions', adminAuthMiddleware, adminProtect, getAllTransactionsForStateAdmin);
 router.get('/user-transactions', protect, getUserTransactions);
 router.post('/webhook', express.json({ type: 'application/json' }), handleWebhook); // make sure express.json() is applied
+router.get('/chief-admin-transactions', adminAuthMiddleware, adminProtect, getAllStatesTransactionsForChiefAdmin);
+router.get('/chief-admin-transactions/:state', adminAuthMiddleware, adminProtect, getTransactionsByStateForChiefAdmin);
 
 module.exports = router;

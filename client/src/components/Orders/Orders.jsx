@@ -5,7 +5,6 @@ import {
   useGetOrderStatusQuery,
 } from "../../redux/orderAuthApi/orderAuthApi";
 import Loader from "../Loader/Loader";
-import Error from "../Error/Error";
 import { useSelector } from "react-redux";
 
 const OrderCard = ({ order }) => {
@@ -118,7 +117,7 @@ const Orders = () => {
   const darkMode = useSelector((s) => s.theme.darkMode);
 
   if (isLoading) return <Loader />;
-  if (error) return <Error onClose={() => {}} message="Failed to load your orders." />;
+  if (error) return <p className="text-center text-red-500">No orders found!</p>
 
   return (
     <div className="w-full min-h-screen p-6">

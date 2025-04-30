@@ -28,9 +28,11 @@ const Flutterwave = () => {
     );
   }
 
+  console.log("Transactions:", transactions);
+
   return (
     <div className={`p-6 rounded-lg shadow-md ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-800'}`}>
-      <h2 className="text-2xl font-bold mb-6 border-b pb-2 border-gray-300 dark:border-gray-700">
+      <h2 className="text-2xl font-bold mb-6 border-b pb-2 border-gray-300 dark:border-gray-700 text-center">
         Your Transactions
       </h2>
 
@@ -46,6 +48,8 @@ const Flutterwave = () => {
               }`}
             >
               <p className="text-sm"><span className="font-medium">Ref:</span> {txn.transactionRef}</p>
+              <p className="text-sm"><span className="font-medium">Phone:</span> {txn.customer.name}</p>
+              <p className="text-sm"><span className="font-medium">Email:</span> {txn.customer.email}</p>
               <p className="text-sm"><span className="font-medium">Amount:</span> ₦{txn.amount}</p>
               <p
                 className={`text-sm font-medium ${
