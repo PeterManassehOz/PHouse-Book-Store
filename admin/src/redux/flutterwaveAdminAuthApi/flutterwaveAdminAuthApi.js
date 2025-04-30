@@ -50,11 +50,38 @@ export const flutterwaveAdminAuthApi = createApi({
         },
       }),
       
+      getAllStatesTransactionsForChiefAdmin: builder.query({
+        query: () => ({
+          url: '/chief-admin-transactions',
+          method: 'GET',
+        }),
+      }),
       
+
+      getTransactionsByStateForChiefAdmin: builder.query({
+        query: (state) => ({
+          url: `/chief-admin-transactions/${state}`,
+          method: 'GET',
+        }),
+        transformResponse: (response) => {
+          const timestamp = new Date().getTime();
+          return response.map((txn) => ({
+            ...txn,
+            userId: {
+              ...txn.userId,
+              image: txn.userId?.image
+                ? `http://localhost:5000/uploads/${txn.userId.image.split("/").pop()}?t=${timestamp}`
+                : null,
+            },
+          }));
+        },
+      }),
   }),
 });
 
 export const {
     useGetAllTransactionsQuery,
     useGetAllTransactionsForStateAdminQuery,
+    useGetAllStatesTransactionsForChiefAdminQuery,
+    useGetTransactionsByStateForChiefAdminQuery,
 } = flutterwaveAdminAuthApi;

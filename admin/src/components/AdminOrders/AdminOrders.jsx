@@ -22,14 +22,15 @@ const AdminOrders = () => {
   return (
     <div className="w-full min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
-        <h2
-          className={`text-2xl font-semibold mb-6 ${
-            darkMode ? "text-white" : "text-black"
-          }`}
-        >
-          Manage Orders
-        </h2>
-
+            <h2
+              className={`text-2xl font-semibold mb-6 border-b pb-2 border-gray-300 dark:border-gray-700 text-center ${
+                darkMode ? "text-white" : "text-black"
+              }`}
+            >
+              Manage Orders
+            </h2>
+        <>
+        {console.log("Orders data:", orders)}
         <div className="flex flex-wrap gap-6">
           {[...orders].reverse().map((order) => (
             <div
@@ -42,7 +43,14 @@ const AdminOrders = () => {
             >
               <h3 className="text-lg font-semibold mb-2">Order ID: {order._id}</h3>
               <p className="mb-1">
-                <span className="font-medium">User:</span> {order.userId.firstname} {order.userId.lastname}
+                <span className="font-medium">Ordered On:</span>{" "}
+                {new Date(order.createdAt).toLocaleDateString()}
+              </p>
+              <p className="mb-1">
+                <span className="font-medium">User:</span> {order.name}
+              </p>
+              <p className="mb-1">
+                <span className="font-medium">Email:</span> {order.email}
               </p>
               <p className="mb-2">
                 <span className="font-medium">Status:</span>{" "}
@@ -83,6 +91,7 @@ const AdminOrders = () => {
             </div>
           ))}
         </div>
+        </>
       </div>
     </div>
   );

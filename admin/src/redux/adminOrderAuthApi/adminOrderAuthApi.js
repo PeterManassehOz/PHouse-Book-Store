@@ -13,7 +13,7 @@ const baseQuery = fetchBaseQuery({
 });
 
 export const adminOrderAuthApi = createApi({
-  reducerPath: 'orderAuthApi',
+  reducerPath: 'adminOrderAuthApi',
   baseQuery,
   endpoints: (builder) => ({
     getOrdersForAdmin: builder.query({
@@ -28,10 +28,37 @@ export const adminOrderAuthApi = createApi({
       }),
       invalidatesTags: ['Order'],
     }),
+
+    getAllStatesOrdersForChiefAdmin: builder.query({
+      query: () => '/chief-admin-orders',
+      providesTags: ['Order'],
+    }),
+
+    getOrdersByStateForChiefAdmin: builder.query({
+      query: (state) => `/chief-admin-orders/${state}`,
+      providesTags: ['Order'],
+      transformResponse: (response) => {
+        const timestamp = Date.now();
+        return response.map(order => ({
+          ...order,
+          userId: {
+            // ◀️ spread _all_ the original populated fields
+            ...order.userId,
+            // ◀️ then override just the image URL
+            image: order.userId?.image
+              ? `http://localhost:5000/uploads/${order.userId.image.split('/').pop()}?t=${timestamp}`
+              : null,
+          },
+        }));
+      },
+    }),
+    
   }),
 });
 
 export const {
   useGetOrdersForAdminQuery,
   useUpdateOrderStatusMutation,
+  useGetAllStatesOrdersForChiefAdminQuery,
+  useGetOrdersByStateForChiefAdminQuery,
 } = adminOrderAuthApi;

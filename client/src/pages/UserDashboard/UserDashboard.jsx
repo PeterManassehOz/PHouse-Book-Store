@@ -52,7 +52,7 @@ const UserDashboard = () => {
           ${selectedComponent ? "hidden md:flex" : "flex"}`}> 
         <div>
           <div className="flex justify-center items-center cursor-pointer" >
-              <img src={LivingSeed} alt="Logo" className="w-30 sm:w-30 h-10 bg-white p-1 rounded-full shadow-md shadow-black backdrop-blur-md bg-opacity-30"  onClick={() => navigate("/")}/>
+              <img src={LivingSeed} alt="Logo" className="w-30 sm:w-30 h-10 bg-white p-1 rounded-full shadow-md shadow-black backdrop-blur-md bg-opacity-30 animate-bounce"  onClick={() => navigate("/")}/>
           </div>
           <hr className="my-4 border-white" />
           <ul className="space-y-3">

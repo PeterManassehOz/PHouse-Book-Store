@@ -44,7 +44,7 @@ const ChooseVerification = () => {
     try {
       const response = await resendPhoneOtp({ phonenumber }).unwrap();
   
-      // 👇 Add this to show OTP (if your backend returns it)
+      // Display OTP in toast only for development mode
       if (response.phoneOtp) {
         toast.info(`Test OTP: ${response.phoneOtp}`);
       }
@@ -55,6 +55,7 @@ const ChooseVerification = () => {
       toast.error(err?.data?.message || err.message || 'Failed to send SMS OTP');
     }
   };
+  
 
   
   return (
