@@ -239,7 +239,7 @@ const Aggregator = () => {
           darkMode ? ' text-gray-300' : 'bg-gray-100 border-gray-300 text-gray-800'
         }`}>
           {stats.newsletter.emails && stats.newsletter.emails.length > 0 ? (
-            stats.newsletter.emails.map((email, idx) => (
+            stats.newsletter.emails.slice(0, 5).map((email, idx) => (
               <li key={idx} className="py-1 border-b last:border-b-0 border-dashed border-gray-400">
                 {email}
               </li>

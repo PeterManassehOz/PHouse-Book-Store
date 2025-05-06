@@ -7,11 +7,11 @@ import { useGetSubscriptionStatusQuery, useSubscribeNewsletterMutation } from ".
 import { toast } from 'react-toastify'
 
 const Footer = () => {
-  const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   // Fetch subscription status
-  const { data, isLoading: isCheckingStatus } = useGetSubscriptionStatusQuery(email, { skip: !email });
+  const { data, isLoading: isCheckingStatus } = useGetSubscriptionStatusQuery();
+
 
   // Subscribe/Unsubscribe mutation
   const [subscribeNewsletter, { isLoading: isSubscribing }] = useSubscribeNewsletterMutation();
@@ -25,18 +25,16 @@ const Footer = () => {
 
   // Handle subscription toggle
   const handleSubscription = async () => {
-    if (!email) return;
-
     try {
-      await subscribeNewsletter(email).unwrap();
-      setIsSubscribed((prev) => !prev); // Toggle the button state dynamically
-      
-      toast.success('Subscribed for newsletter successfully')
-
+      await subscribeNewsletter().unwrap();
+      setIsSubscribed((prev) => !prev);
+      toast.success('Newsletter subscription updated!');
     } catch (err) {
-      console.error("Subscription failed:", err);toast.error('Newsletter subscription failed')
+      console.error("Subscription failed:", err);
+      toast.error('Newsletter subscription failed');
     }
   };
+
 
   return (
     <footer className="bg-amber-900 text-white py-30 px-6 sm:px-20">
@@ -68,18 +66,13 @@ const Footer = () => {
         {/* Right Section */}
         <div className="text-center md:text-right md:w-[25%]">
           <h3 className="text-xl font-semibold">Stay Connected</h3>
-          <p className="text-sm mt-2 leading-6">Sign up with your email, and we&apos;ll keep you updated</p>
-          <div className="flex mt-4">
-            <input
-              className="w-full p-3 border border-amber-400 bg-transparent rounded-md focus:ring-1 focus:ring-amber-400 focus:outline-none focus:border-none"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+          <p className="text-sm mt-2 leading-6">Click below to {isSubscribed ? "unsubscribe" : "subscribe"} {isSubscribed ? "from" : "to"} our newsletter.</p>
+          <div className="flex mt-4 justify-center md:justify-end w-full">
             <button
-              className="bg-amber-700 px-4 py-2 rounded-r-md hover:bg-amber-400 transition cursor-pointer"
-              onClick={handleSubscription}
+              className="  bg-amber-700 hover:bg-amber-600  disabled:bg-amber-500 text-white 
+              font-medium py-4 px-20 rounded-full shadow-md 
+              transition duration-300 text-sm sm:text-base 
+              w-full sm:w-auto text-center sm:text-right" onClick={handleSubscription}
               disabled={isSubscribing || isCheckingStatus}
             >
               {isCheckingStatus

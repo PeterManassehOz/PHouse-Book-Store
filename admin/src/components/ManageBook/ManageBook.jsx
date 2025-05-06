@@ -85,7 +85,7 @@ const ManageBook = () => {
             No books found.
           </p>
         ) : (
-          books.map((book) => (
+          [...books]?.reverse().map((book) => (
             <div
               key={book._id}
               className={`

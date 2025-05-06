@@ -24,12 +24,14 @@ export const newsLetterAuthApi = createApi({
           body: { email },
         }),
       }),
-      getSubscriptionStatus: builder.query({
-        query: (email) => ({
-          url: `/status?email=${email}`,
-          method: 'GET',
-        }),
+      
+    getSubscriptionStatus: builder.query({
+      query: () => ({
+        url: "/status",
+        method: "GET",
+        // no email needed
       }),
+    }),
     }),
   });
   

@@ -6,7 +6,7 @@ const Flutterwave = () => {
   const darkMode = useSelector((state) => state.theme.darkMode);
 
   const {
-    data: transactions,
+    data: transactions = [],
     error,
     isLoading: transactionsLoading,
   } = useGetAllTransactionsForStateAdminQuery(
