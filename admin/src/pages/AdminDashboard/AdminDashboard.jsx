@@ -4,12 +4,12 @@ import { IoArrowBack, IoLogOut, IoHome,} from "react-icons/io5";
 import CreateBook from "../../components/CreateBook/CreateBook";
 import Aggregator from "../../components/Aggregator/Aggregator";
 import ManageBook from "../../components/ManageBook/ManageBook";
-import Flutterwave from "../../components/AdminFlutterwave/AdminFlutterwave";
+import AdminFlutterwave from "../../components/AdminFlutterwave/AdminFlutterwave";
 import AdminOrders from "../../components/AdminOrders/AdminOrders";
 import AssignAdminRole from "../../components/AssignAdminRole/AssignAdminRole";
 import { MdBookmarkAdd, MdBookmarkAdded, MdBookmarks, MdOutlineBookmarkAdded, MdOutlineManageHistory } from "react-icons/md";
 import { GrAggregate } from "react-icons/gr";
-import { MdAssignmentInd } from "react-icons/md";
+import { MdAssignmentInd, MdSubscriptions } from "react-icons/md";
 import { TbCurrencyNaira } from "react-icons/tb";
 import { FaFileInvoice } from "react-icons/fa6";
 import { useSelector } from "react-redux";
@@ -21,6 +21,7 @@ import CreateAdminOrder from "../../components/CreateAdminOrder/CreateAdminOrder
 import GetAdminOrders from "../../components/GetAdminOrders/GetAdminOrders";
 import GetAdminOrdersForChief from "../../components/GetAdminOrdersForChief/GetAdminOrdersForChief";
 import AdminOrderStatistics from "../../components/AdminOrderStatistics/AdminOrderStatistics";
+import Subscribers from "../../components/Subscribers/Subscribers";
 
 
 
@@ -72,8 +73,11 @@ const AdminDashboard = () => {
             <li onClick={() => handleComponentChange("managebook")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
               <MdOutlineManageHistory className="text-xl" /> Manage Books
             </li>
+            <li onClick={() => handleComponentChange("subscribers")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
+              <TbCurrencyNaira  className="text-xl" /> Subscribers
+            </li>
             <li onClick={() => handleComponentChange("transactions")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
-              <TbCurrencyNaira  className="text-xl" /> Transactions
+              <MdSubscriptions className="text-xl" /> Transactions
             </li>
             <li onClick={() => handleComponentChange("orders")} className="flex items-center gap-2 p-3 cursor-pointer hover:bg-amber-700 rounded">
               <FaFileInvoice  className="text-xl" /> Orders
@@ -129,7 +133,8 @@ const AdminDashboard = () => {
         {selectedComponent === "adminaggregator" && <AdminOrderStatistics />}
         {selectedComponent === "createbook" && <CreateBook />}
         {selectedComponent === "managebook" && <ManageBook />}
-        {selectedComponent === "transactions" && <Flutterwave />}
+        {selectedComponent === "subscribers" && <Subscribers />}
+        {selectedComponent === "transactions" && <AdminFlutterwave />}
         {selectedComponent === "admintransactions" && (
           <StateAdminTransactions onSubPage={(isSubPage) => setShowBackButton(!isSubPage)} />
         )}

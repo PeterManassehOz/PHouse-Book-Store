@@ -1,4 +1,3 @@
-// src/components/Orders/Orders.jsx
 import React from "react";
 import {
   useGetOrdersForUserQuery,
@@ -69,7 +68,7 @@ const OrderCard = ({ order }) => {
       </p>
 
       <p className="mt-2 font-semibold">
-        Total: <span className="text-green-600">₦{order.totalPrice}</span>
+        Total: <span className="text-amber-700">₦{order.totalPrice}</span>
       </p>
 
       <h4
@@ -99,7 +98,7 @@ const OrderCard = ({ order }) => {
               <p className="text-sm">Author: {p.author[0]?.name}</p>
               <p
                 className={`text-sm ${
-                  darkMode ? "text-white" : "text-green-600"
+                  darkMode ? "text-white" : "text-amber-600"
                 }`}
               >
                 ₦{p.price}
@@ -123,7 +122,7 @@ const Orders = () => {
     <div className="w-full min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
         <h2
-          className={`text-2xl font-semibold mb-6 ${
+          className={`text-2xl font-semibold mb-6 border-b pb-2 border-gray-300 ${
             darkMode ? "text-white" : "text-black"
           }`}
         >
@@ -131,7 +130,7 @@ const Orders = () => {
         </h2>
 
         {orders.length === 0 ? (
-          <p className="text-center text-gray-600">No orders found.</p>
+          <p className="text-center text-sm italic text-gray-500 dark:text-gray-400">No orders found.</p>
         ) : (
           <div className="flex flex-wrap gap-6">
             {[...orders]
