@@ -69,10 +69,10 @@ const Footer = () => {
           <p className="text-sm mt-2 leading-6">Click below to {isSubscribed ? "unsubscribe" : "subscribe"} {isSubscribed ? "from" : "to"} our newsletter.</p>
           <div className="flex mt-4 justify-center md:justify-end w-full">
             <button
-              className="  bg-amber-700 hover:bg-amber-600  disabled:bg-amber-500 text-white 
+              className={`text-white 
               font-medium py-4 px-20 rounded-full shadow-md 
               transition duration-300 text-sm sm:text-base 
-              w-full sm:w-auto text-center sm:text-right" onClick={handleSubscription}
+              w-full sm:w-auto text-center sm:text-right ${isSubscribed ? "bg-red-600 hover:bg-red-500 disabled:bg-red-400" : "bg-amber-600 hover:bg-amber-500 disabled:bg-amber-400"}`} onClick={handleSubscription}
               disabled={isSubscribing || isCheckingStatus}
             >
               {isCheckingStatus
