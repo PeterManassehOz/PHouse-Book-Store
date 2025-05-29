@@ -41,7 +41,7 @@ const Aggregator = () => {
   const { inner, outer, w, h } = getPieSize();
 
   if (statsLoading || txnsLoading) return <Loader />;
-  if (showError) return <Error onClose={() => setShowError(false)} />;
+  if (showError) return <p className='text-center text-red-500'>No aggregated data yet!</p>;
 
   if (
     !stats?.books ||

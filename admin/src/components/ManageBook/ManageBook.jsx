@@ -5,8 +5,7 @@ import {
   useDeleteBookMutation,
   useGetAllBooksQuery,
 } from "../../redux/adminBookAuthApi/adminBookAuthApi";
-import Error from "../Error/Error";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 const ManageBook = () => {
@@ -20,15 +19,7 @@ const ManageBook = () => {
 
   const darkMode = useSelector((state) => state.theme.darkMode);
   const navigate = useNavigate();
-  const [showError, setShowError] = useState(false);
-
-  useEffect(() => {
-    if (error) {
-      console.error("Fetch error:", error);
-      toast.error(error?.data?.message || "Failed to fetch books");
-      setShowError(true);
-    }
-  }, [error]);
+ 
 
   useEffect(() => {
     if (isDeleteSuccess) {
@@ -53,7 +44,24 @@ const ManageBook = () => {
   };
 
   if (isLoading) return <Loader />;
-  if (showError) return <Error onClose={() => setShowError(false)} />;
+
+  if (error) {
+    return (
+      <p className="text-red-500 text-center">
+        Failed to load books!
+      </p>
+    );
+  }
+
+  if (!Array.isArray(books) || books.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg font-medium">
+          No books to manage.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div

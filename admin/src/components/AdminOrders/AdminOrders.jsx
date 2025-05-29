@@ -4,7 +4,6 @@ import {
   useUpdateOrderStatusMutation,
 } from "../../redux/adminOrderAuthApi/adminOrderAuthApi";
 import Loader from "../Loader/Loader";
-import Error from "../Error/Error";
 import { useSelector } from "react-redux";
 
 const AdminOrders = () => {
@@ -17,7 +16,7 @@ const AdminOrders = () => {
   };
 
   if (isLoading) return <Loader />;
-  if (isError) return <Error />;
+  if (isError) return <p className="text-center text-red-500 text-lg mt-8">No order found!</p>
 
   return (
     <div className="w-full min-h-screen p-6">

@@ -19,7 +19,14 @@ export const subscribersAuthApi = createApi({
           method: "GET",
         }),
       }),
+      sendNewsletter: builder.mutation({
+      query: ({ subject, html }) => ({
+        url: "/send-newsletter",
+        method: "POST",
+        body: { subject, html },
+      }),
+    }),
   }),
 });
 
-export const {useGetAllSubscribersQuery } = subscribersAuthApi;
+export const {useGetAllSubscribersQuery, useSendNewsletterMutation } = subscribersAuthApi;

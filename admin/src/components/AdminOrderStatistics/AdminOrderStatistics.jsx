@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux';
 
 const AdminOrderStatistics = () => {
   const darkMode = useSelector(s => s.theme.darkMode);
-  const { data: stats, isLoading, isError, error } = useGetAdminOrderStatisticsQuery();
+  const { data: stats, isLoading, isError } = useGetAdminOrderStatisticsQuery();
 
   // Responsive pie sizing
   const [sw, setSw] = useState(window.innerWidth);
@@ -28,7 +28,7 @@ const AdminOrderStatistics = () => {
   const { inner, outer, w, h } = getPieSize();
 
   if (isLoading) return <Loader />;
-  if (isError) return <Error message={error?.data?.message || error.error} />;
+  if (isError) return <p className='text-red-500 text-center'>Unauthorized! Chief Admin only.</p>;//<Error message={error?.data?.message || 'Failed to fetch order statistics'>;
 
   // Prepare status breakdown
   const statusData = Object.entries(stats.orders.statusBreakdown || {})

@@ -40,6 +40,8 @@ const UserDashboard = () => {
       localStorage.removeItem("phcode");
       localStorage.removeItem("userId");
       localStorage.removeItem("userProfile");
+      localStorage.removeItem("email");
+      localStorage.removeItem("phonenumber");
       navigate("/login");
     };
 

@@ -123,6 +123,7 @@ const Login = () => {
         <div className={`text-center mt-4 ${darkMode ? "text-white" : "text-gray-600" }`}>
           <p>Don&apos;t have an account? <Link to="/signup" className={`${darkMode ? "text-amber-500" : "text-amber-700" }`}>Sign up</Link></p>
           <p>Forgot password? <Link to="/forgot-password" className={`${darkMode ? "text-amber-500" : "text-amber-700" }`}>Reset</Link></p>
+          <p>Forgot PHCode? <Link to="/forgot-phcode" className={`${darkMode ? "text-amber-500" : "text-amber-700" }`}>Get Mail</Link></p>
         </div> 
       </form>
     </div>

@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const { sendEmailOtp, checkEmailOtp, sendPhoneOtp, checkPhoneOtp } = require("../services/otp.service");
+const STATES = require('../lib/states'); 
 
 
 
@@ -22,22 +23,48 @@ const transporter = nodemailer.createTransport({
 
 const registerUser = async (req, res) => {
   try {
-    const { firstname, lastname, email, phonenumber, phcode, state, password, confirmPassword } = req.body;
+    const { firstname, lastname, email, phonenumber, gender, stateCode, password, confirmPassword } = req.body;
 
     if (password !== confirmPassword) {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
+        // 2) Validate stateCode & get full name
+    if (!/^[A-Z]{2,3}$/.test(stateCode) || !STATES[stateCode]) {
+      return res.status(400).json({ message: "Invalid state code" });
+    }
+    const state = STATES[stateCode];
+
+    // 3) gender must be 'M' or 'F'
+    if (!['M','F'].includes(gender)) {
+      return res.status(400).json({ message: "Gender must be 'M' or 'F'" });
+    }
+
     const existing = await User.findOne({ email });
     if (existing) return res.status(400).json({ message: "Email already in use" });
+
+
+     // ————————————————
+    // PHCode generation exactly as in A:
+    const yearSuffix = new Date().getFullYear().toString().slice(-2);           // e.g. "24"
+    const prefix = `${stateCode}${yearSuffix}-${gender}`;                       // e.g. "LAG24-M"
+    
+    const similarCount = await User.countDocuments({
+      phcode: { $regex: `^${prefix}` }
+    });
+    const sequence = String(similarCount + 1).padStart(4, '0');                 // e.g. "0001"
+    const phcode = `${prefix}${sequence}`;                                      // e.g. "LAG24-M0001"
+    // ————————————————
 
     const user = new User({
       firstname,
       lastname,
       email,
       phonenumber,
+      gender,
+      stateCode,
+      state: state,
       phcode,
-      state,
       emailVerified: false,
       phoneVerified: false,
     });
@@ -52,6 +79,7 @@ const registerUser = async (req, res) => {
       nextStep: "choose",
       email: user.email,
       phonenumber: user.phonenumber,
+      phcode: user.phcode
     });
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -66,7 +94,7 @@ const loginUser = async (req, res) => {
   try {
     const { phcode, password } = req.body;
 
-    const user = await User.findOne({ phcode });
+    const user = await User.findOne({ phcode: phcode.toUpperCase() });
     if (!user) return res.status(400).json({ message: "Invalid phcode or password" });
 
     await verifyPasswordAndGenerateToken(user, password);
@@ -99,6 +127,7 @@ const loginUser = async (req, res) => {
       phonenumber: user.phonenumber,
       needsVerification: true,
       nextStep, // 👈 can be 'verify-email', 'verify-phone', or 'choose'
+      user
     });
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -127,6 +156,8 @@ const verifyEmailOtp = async (req, res) => {
 // =========================
 const resendEmailOtp = async (req, res) => {
   try {
+    console.log("resendEmailOtp body:", req.body);
+
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: "Email is required" });
 
@@ -302,4 +333,28 @@ const resetPasswordWithToken = async (req, res) => {
 };
 
 
-module.exports = { registerUser, loginUser, verifyEmailOtp, resendEmailOtp, verifyPhoneOtp, resendPhoneOtp, resetUserPassword, forgotPassword, resetPasswordWithToken };
+
+const forgotPHCode = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User with this email does not exist' });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER, // Make sure this is set in your .env
+      to: user.email,
+      subject: 'Your PHCode',
+      text: `Hello ${user.firstname},\n\nYour PHCode is: ${user.phcode}\n\nPlease keep it secure.`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: 'PHCode has been sent to your email' });
+  } catch (err) {
+    console.error('Error sending PHCode email:', err);
+    res.status(500).json({ message: 'Failed to send PHCode. Please try again later.' });
+  }
+};
+
+module.exports = { registerUser, loginUser, verifyEmailOtp, resendEmailOtp, verifyPhoneOtp, resendPhoneOtp, resetUserPassword, forgotPassword, resetPasswordWithToken, forgotPHCode };

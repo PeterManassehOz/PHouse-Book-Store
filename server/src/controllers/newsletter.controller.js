@@ -1,6 +1,8 @@
 const Newsletter = require("../models/newsletter.model");
 const User = require("../models/users.model");
 const { getSubscribersByState } = require('../services/newsletter.service');
+const transporter   = require("../config/nodemailer");  // your existing nodemailer setup
+
 
 
 
@@ -86,6 +88,58 @@ const getSubscriptionStatus = async (req, res) => {
   };
   
 
+
+/**
+ * POST /newsletter/send
+ * Body: { subject: string, html: string }
+ * Sends only to subscribers in req.user.state
+ */
+const sendNewsletter = async (req, res) => {
+  try {
+    const { subject, html } = req.body;
+    const state = req.user.state;              // the admin’s state
+
+    if (!subject || !html) {
+      return res
+        .status(400)
+        .json({ message: "Both subject and html are required" });
+    }
+    if (!state) {
+      return res
+        .status(400)
+        .json({ message: "Admin state not found on your profile" });
+    }
+
+    // fetch only those in this admin’s state
+    const subscribers = await Newsletter.find({ state }).select("email -_id");
+    if (subscribers.length === 0) {
+      return res
+        .status(404)
+        .json({ message: `No subscribers in your state (${state})` });
+    }
+
+    // send in parallel
+    await Promise.all(
+      subscribers.map(({ email }) =>
+        transporter.sendMail({
+          to:      email,
+          subject: subject,
+          html:    html,
+        })
+      )
+    );
+
+    res.status(200).json({
+      message: `Newsletter sent to ${subscribers.length} subscriber(s) in ${state}`,
+      count: subscribers.length,
+    });
+  } catch (err) {
+    console.error("sendNewsletter error:", err);
+    res
+      .status(500)
+      .json({ message: "Server error sending newsletter", error: err.message });
+  }
+};
+
   
-  
-module.exports = { subscribeNewsletter, getSubscriptionStatus, getAllSubscribersForStateAdmin };
+module.exports = { subscribeNewsletter, getSubscriptionStatus, getAllSubscribersForStateAdmin, sendNewsletter };

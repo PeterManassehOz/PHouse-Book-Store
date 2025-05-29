@@ -52,9 +52,15 @@ async function sendPhoneOtp(phonenumber) {
   const user = await User.findOne({ phonenumber });
   if (!user) throw new Error('User not found.');
 
-  user.phoneOtp        = phoneOtp;
-  user.phoneOtpExpires = expires;
-  await user.save();
+   await User.updateOne(
+    { phonenumber },
+    {
+      $set: {
+        phoneOtp,
+        phoneOtpExpires: expires
+      }
+    }
+  );
 
   //Dev only: Log the OTP to the console
   console.log(`🔐 OTP sent to ${phonenumber}:`, phoneOtp); // ✅ Log the OTP here
@@ -70,19 +76,33 @@ async function sendPhoneOtp(phonenumber) {
   return phoneOtp;
 }
 
-async function checkPhoneOtp(phonenumber, phoneOtp) {
+// services/otp.service.js
+async function checkPhoneOtp(phonenumber, providedOtp) {
+  // fetch user so we can compare the stored OTP
   const user = await User.findOne({ phonenumber });
   if (!user) throw new Error('User not found.');
-  if (user.phoneOtp !== phoneOtp || user.phoneOtpExpires < Date.now()) {
+
+  // check match + expiry
+  if (user.phoneOtp !== providedOtp || user.phoneOtpExpires < Date.now()) {
     throw new Error('Invalid or expired OTP');
   }
 
-  user.phoneVerified   = true;
-  user.phoneOtp        = undefined;
-  user.phoneOtpExpires = undefined;
-  await user.save();
-  return user;
+  // now atomically mark verified and clear OTP fields
+  const result = await User.updateOne(
+    { phonenumber },
+    {
+      $set:   { phoneVerified: true },
+      $unset: { phoneOtp: "", phoneOtpExpires: "" }
+    }
+  );
+
+  console.log('OTP verify updateOne result:', result);
+
+  // re-fetch the updated user (or merge fields yourself)
+  const verifiedUser = await User.findOne({ phonenumber });
+  return verifiedUser;
 }
+
 
 module.exports = {
   sendEmailOtp, checkEmailOtp,

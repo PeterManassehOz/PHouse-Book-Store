@@ -21,6 +21,7 @@ import VerifyOtpWithEmail from './components/VerifyOtpWithEmail/VerifyOtpWithEma
 import VerifyOtpWithPhone from './components/VerifyOtpWithPhone/VerifyOtpWithPhone';
 import ChooseVerification from './components/ChooseVerification/ChooseVerification';
 import MobileViewAuthorYear from './components/MobileViewAuthorYear/MobileViewAuthorYear';
+import ForgotPHCode from './components/ForgotPHCode/ForgotPHCode';
 
 function App() {
   return (
@@ -62,6 +63,7 @@ const Layout = () => {
             <Route path="/verify-phone-otp" element={<VerifyOtpWithPhone />} />
             <Route path="/choose-verification" element={<ChooseVerification />} />
             <Route path='/mobile-view-author-year' element={<MobileViewAuthorYear />} />
+            <Route path='/forgot-phcode' element={<ForgotPHCode />} />
           </Routes>
       </div>
     

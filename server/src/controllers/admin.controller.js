@@ -1,5 +1,21 @@
 const Admin = require('../models/admin.model');
 const { verifyPasswordAndGenerateToken, generateTokenPassword } = require('../utils/generateTokenPassword');
+const STATES = require('../lib/states'); 
+const nodemailer = require('nodemailer');
+
+
+
+
+const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true, // Use `true` for port 465, `false` for 587
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
+
 
 
 
@@ -8,7 +24,26 @@ const { verifyPasswordAndGenerateToken, generateTokenPassword } = require('../ut
 // @route POST /api/admin/register-chief
 // @access Public (Only for the first time)
 exports.registerChiefAdmin = async (req, res) => {
-    const { name, email, phcode, state, password } = req.body;
+    const { name, email, stateCode, gender, password, confirmPassword } = req.body;
+
+
+       // 1️⃣ Passwords match
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+
+     // 2️⃣ Validate stateCode & lookup full name
+    if (!/^[A-Z]{2,3}$/.test(stateCode) || !STATES[stateCode]) {
+      return res.status(400).json({ message: "Invalid state code" });
+    }
+    const state = STATES[stateCode];
+
+        // 3️⃣ Validate gender
+    if (!['M','F'].includes(gender)) {
+      return res.status(400).json({ message: "Gender must be 'M' or 'F'" });
+    }
+
 
     try {
         // Check if a Chief Admin already exists
@@ -16,6 +51,14 @@ exports.registerChiefAdmin = async (req, res) => {
         if (existingChief) {
             return res.status(400).json({ message: "A Chief Admin already exists." });
         }
+
+          // 5️⃣ Build PHCode
+        const yy      = new Date().getFullYear().toString().slice(-2);
+        const prefix  = `${stateCode}${yy}-${gender}`; 
+        const count   = await Admin.countDocuments({ phcode: { $regex: `^${prefix}` } });
+        const seq     = String(count + 1).padStart(4, '0');
+        const phcode  = `${prefix}${seq}`;
+
 
         // Hash password first before creating the admin
         const { hashedPassword } = await generateTokenPassword({}, password);
@@ -25,7 +68,9 @@ exports.registerChiefAdmin = async (req, res) => {
             name,
             email,
             phcode,
+            stateCode,
             state,
+            gender,
             password: hashedPassword,
             isAdmin: true,
             isChiefAdmin: true,
@@ -89,11 +134,36 @@ exports.adminLogin = async (req, res) => {
 // @route POST /api/admin/signup
 // @access Public (Anyone can sign up, but access is restricted)
 exports.adminSignup = async (req, res) => {
-    const { name, email, phcode, state, password } = req.body;
+    const { name, email, stateCode, gender, password, confirmPassword } = req.body;
+
+      // 1️⃣ Passwords match
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+      // 2️⃣ Validate stateCode & lookup full name
+    if (!/^[A-Z]{2,3}$/.test(stateCode) || !STATES[stateCode]) {
+      return res.status(400).json({ message: "Invalid state code" });
+    }
+    const state = STATES[stateCode];
+
+
+      // 3️⃣ Validate gender
+    if (!['M','F'].includes(gender)) {
+      return res.status(400).json({ message: "Gender must be 'M' or 'F'" });
+    }
+
+    // 4️⃣ Build PHCode
+    const yy      = new Date().getFullYear().toString().slice(-2);
+    const prefix  = `${stateCode}${yy}-${gender}`; 
+    const count   = await Admin.countDocuments({ phcode: { $regex: `^${prefix}` } });
+    const seq     = String(count + 1).padStart(4, '0');
+    const phcode  = `${prefix}${seq}`;
+
 
     try {
         // Check if admin already exists
-        const existingAdmin = await Admin.findOne({ state, phcode });
+        const existingAdmin = await Admin.findOne({ stateCode, phcode });
         if (existingAdmin) {
             return res.status(400).json({ message: "Admin already exists." });
         }
@@ -105,6 +175,8 @@ exports.adminSignup = async (req, res) => {
         const newAdmin = await Admin.create({
             name,
             email,
+            stateCode,
+            gender,
             phcode,
             state,
             password: hashedPassword,
@@ -155,4 +227,29 @@ exports.assignAdminRole = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+};
+
+
+
+exports.adminForgotPHCode = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const admin = await Admin.findOne({ email });
+    if (!admin) return res.status(404).json({ message: 'User with this email does not exist' });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER, 
+      to: admin.email,
+      subject: 'Your PHCode',
+      text: `Hello ${admin.name},\n\nYour PHCode is: ${admin.phcode}\n\nPlease keep it secure.`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: 'PHCode has been sent to your email' });
+  } catch (err) {
+    console.error('Error sending PHCode email:', err);
+    res.status(500).json({ message: 'Failed to send PHCode. Please try again later.' });
+  }
 };
