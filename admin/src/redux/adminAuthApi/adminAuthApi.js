@@ -45,6 +45,14 @@ export const adminAuthApi = createApi({
           body: data,
         }),
       }),
+
+      adminForgotPHCode: builder.mutation({
+      query: (userData) => ({
+        url: '/admin-forgot-phcode',
+        method: 'POST',
+        body: userData,
+      }),
+    }),
     }),
   });
 
@@ -52,6 +60,7 @@ export const {
   useRegisterChiefAdminMutation,
   useLoginAdminMutation,
   useSignupAdminMutation,
-  useAssignAdminRoleMutation
+  useAssignAdminRoleMutation,
+  useAdminForgotPHCodeMutation,
 } = adminAuthApi;
 export default adminAuthApi;

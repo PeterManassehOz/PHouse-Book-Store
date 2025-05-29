@@ -87,8 +87,13 @@ const AdminLogin = () => {
  
 
          <div className={`text-center mt-4 ${darkMode ? "text-white" : "text-gray-600" }`}>
-           Don't have an account? <Link to="/admin-signup" className={`${darkMode ? "text-amber-500" : "text-amber-700" }`}>Admin Sign in</Link>
+           <p>Don't have an account? <Link to="/admin-signup" className={`${darkMode ? "text-amber-500" : "text-amber-700" }`}>Admin Sign in</Link>
+           </p>
+
+           
+          <p>Forgot PHCode? <Link to="/forgot-phcode" className={`${darkMode ? "text-amber-500" : "text-amber-700" }`}>Get Mail</Link></p>
          </div>
+
        </form>
      </div>
    );

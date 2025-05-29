@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGetAllTransactionsForStateAdminQuery } from '../../redux/flutterwaveAdminAuthApi/flutterwaveAdminAuthApi';
 import { useSelector } from 'react-redux';
+import Loader from '../Loader/Loader';
 
 const Flutterwave = () => {
   const darkMode = useSelector((state) => state.theme.darkMode);
@@ -12,21 +13,9 @@ const Flutterwave = () => {
   } = useGetAllTransactionsForStateAdminQuery(
   );
 
-  if (transactionsLoading) {
-    return (
-      <div className={`text-center py-6 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-        Loading transactions...
-      </div>
-    );
-  }
+  if (transactionsLoading) return <Loader />
 
-  if (error) {
-    return (
-      <div className={`text-center py-6 text-red-500 ${darkMode ? 'text-red-400' : ''}`}>
-        Error loading transactions: {error.message}
-      </div>
-    );
-  }
+  if (error) return <p className="text-center text-red-500 text-lg mt-8">No transactions yet!</p> 
 
   console.log("Transactions:", transactions);
 

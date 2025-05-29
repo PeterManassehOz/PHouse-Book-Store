@@ -146,17 +146,15 @@ const HeroRecommended = () => {
           recommendedBooks.map((book, index) => (
             <SwiperSlide key={book._id} className="!overflow-visible relative">
               <div
-                className="cursor-pointer p-4 rounded-lg shadow-lg text-center h-90 md:h-64 lg:h-80 xl:h-96 relative flex flex-col md:flex-row items-center md:items-start"
+                className="cursor-pointer p-4 rounded-lg shadow-lg text-center h-160 md:h-64 lg:h-80 xl:h-96 relative flex flex-col md:flex-row items-center justify-center md:items-start lg:relative"
                 style={{ backgroundColor: colors[index % colors.length] }}
               >
 
-                {/* Book Details */}
-                <div className="lg:w-[300px] lg:mt-10 lg:ml-75 text-center md:text-left">
                   {/* Details Section - Aligned Left */}
-                  <div  className="w-full flex flex-col items-center text-center md:items-start md:text-left">
+                  <div  className="w-full flex flex-col items-center text-center md:items-start md:text-left md:ml-75">
                   <div className="flex items-center space-x-2">
-                    <h3 className={`text-xl font-semibold ${darkMode ?"text-white" : "text-white"}
-          max-w-[200px] sm:max-w-[250px] md:max-w-[300px] whitespace-normal break-words`}>
+                      <h3 className={`text-xl font-semibold ${darkMode ?"text-white" : "text-white"}
+                      [300px] whitespace-normal break-words`}>
                       {book.title}
                     </h3>
 
@@ -198,10 +196,10 @@ const HeroRecommended = () => {
                   </div>
                  
 
-                    <p className="text-xs sm:text-sm md:text-base text-white mt-3 max-w-[250px] sm:max-w-[300px] mx-auto md:mx-0 break-words leading-relaxed text-wrap balance">
-                    {book.description.length > 200 
-                  ? `${book.description.substring(0, 180)}...` 
-                  : book.description}
+                    <p className="text-xs sm:text-sm md:text-base text-white mt-3 max-w-[250px] sm:max-w-[300px] mx-auto md:mx-0 break-words md:h-35 h-20 leading-relaxed text-wrap balance">
+                      {book.description.length > 200 
+                      ? `${book.description.substring(0, 180)}...` 
+                      : book.description}
                     </p>
 
 
@@ -235,19 +233,16 @@ const HeroRecommended = () => {
                   </div>
 
 
-
-                    {/* Book Image */}
-                    <div className="flex justify-center mt-4 md:mt-0 ">
-                      <img
-                        src={book.image}
-                        alt={book.title}
-                        onClick={() => handleBookClick(book)}
-                        className="absolute lg:h-93 lg:w-60 lg:left-40 lg:-bottom-12 transform -translate-x-1/2 w-[150px] h-[190px] left-54 -bottom-30 object-cover rounded-sm shadow-2xl z-50"
-                      />
-                      </div>
-                </div>
-
-                
+                  {/* Book Image */}
+                  <div className="flex    justify-center mt-10 lg:absolute lg:left-30 lg:-bottom-12 sm:justify-start max-sm:ml-50 sm:ml-10 transform -translate-x-1/2 left-54 -bottom-30 z-50">
+                    <img
+                      src={book.image}
+                      alt={book.title}
+                      onClick={() => handleBookClick(book)}
+                      className=" md:lg:h-93 md:lg:w-60 w-[200px] h-[250px] sm:object-contain md:object-cover rounded-sm shadow-2xl"
+                    />
+                  </div>
+       
               </div>
             </SwiperSlide>
           ))

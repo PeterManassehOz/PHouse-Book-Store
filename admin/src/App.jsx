@@ -7,6 +7,7 @@ import EditBook from './components/EditBook/EditBook'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux'
+import ForgotPHCode from './components/ForgotPHCode/ForgotPHCode'
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
             <Route path="/admin-login" element={<AdminLogin />} />
             {<Route path="/edit-book/:id" element={<EditBook />} />}
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path='/forgot-phcode' element={<ForgotPHCode />} />
           </Routes>
         </div>   
       </Router>

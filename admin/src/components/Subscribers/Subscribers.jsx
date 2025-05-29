@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useGetAllSubscribersQuery } from '../../redux/subscribersAuthApi/subscribersAuthApi';
+import Loader from '../Loader/Loader';
 
 
 
@@ -16,18 +17,12 @@ const Subscribers = () => {
   : [];
 
 
-  if (isLoading) {
-    return (
-      <p className="text-center text-blue-500 text-lg mt-8">
-        Loading subscribers...
-      </p>
-    );
-  }
+  if (isLoading)  return <Loader />
 
   if (error) {
     return (
       <p className="text-center text-red-500 text-lg mt-8">
-        Error fetching subscribers: {error.message}
+        No subscribers yet!
       </p>
     );
   }

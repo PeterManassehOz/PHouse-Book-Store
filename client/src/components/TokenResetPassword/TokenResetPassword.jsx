@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { toast } from 'react-toastify';
-//import { useResetPasswordWithTokenMutation } from '../../redux/userAuthApi/userAuthApi';
+import { useResetPasswordWithTokenMutation } from '../../redux/userAuthApi/userAuthApi';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -25,7 +25,7 @@ const TokenResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  //const [resetPasswordWithToken] = useResetPasswordWithTokenMutation();
+  const [resetPasswordWithToken] = useResetPasswordWithTokenMutation();
 
   const onSubmit = async () => {
     if (password !== confirmPassword) {
@@ -34,18 +34,18 @@ const TokenResetPassword = () => {
     }
 
     if (!token) {
-      //toast.error(response.error?.data?.message || response.error?.error || "Invalid or missing token!");
+      toast.error(response.error?.data?.message || response.error?.error || "Invalid or missing token!");
       return;
     }
 
-    //const response = await resetPasswordWithToken({ token, password, confirmPassword });
+    const response = await resetPasswordWithToken({ token, password, confirmPassword });
 
-   // if ("error" in response) {
-   //   toast.error(response.error.data?.message || "Something went wrong!");
-   // } else {
-    //  toast.success(response.data.message || "Password reset successful!");
+    if ("error" in response) {
+      toast.error(response.error.data?.message || "Something went wrong!");
+    } else {
+      toast.success(response.data.message || "Password reset successful!");
       navigate("/login");
-   // }
+    }
   };
 
 

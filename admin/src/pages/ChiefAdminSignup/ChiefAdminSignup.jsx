@@ -14,9 +14,10 @@ const ChiefAdminSignup = () => {
  const schema = yup.object().shape({
      name: yup.string().required('Name is required'),
      email: yup.string().email('Invalid email').required('Email is required'),
-     phcode: yup.string().required('PH code is required'),
-     state: yup.string().required('State is required'),
+     gender: yup.string().required('Gender is required'),
+     stateCode: yup.string().required('State code is required'),
      password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+     confirmPassword: yup.string().oneOf([yup.ref('password'), null], 'Passwords must match').required('Confirm password is required'),
    });
  
    
@@ -35,6 +36,14 @@ const ChiefAdminSignup = () => {
        const response = await registerChief(data).unwrap();
        localStorage.setItem('token', response.token);
        localStorage.setItem('email', data.email); // Store email in localStorage
+
+      setTimeout(() => {
+          toast.info(`Your PHCode is: ${response.phcode}`, {
+            position: "top-right",
+            autoClose: 5000,
+            theme: darkMode ? "dark" : "light",
+          });
+       }, 30000);
 
        toast.success('Registration successful');
        navigate('/admin-dashboard'); 
@@ -70,22 +79,65 @@ const ChiefAdminSignup = () => {
          {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
 
  
-         <input 
-           className={`w-full p-3 mb-3 rounded-md border-none focus:ring-2 focus:ring-amber-200 focus:outline-none ${darkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"}`}
-           type="text" 
-           placeholder="PH code" 
-           {...register("phcode")} 
-         />
-         {errors.phcode && <p className="text-red-500 text-sm">{errors.phcode.message}</p>}
+          {/* State Code Select */}
+        <select
+          className={`w-full p-3 mb-3 rounded-md border-none 
+            focus:ring-2 focus:ring-blue-200 focus:outline-none 
+            ${darkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"}`}
+          {...register("stateCode")}
+        >
+          <option value="">Select State</option>
+          <option value="ABI">Abia</option>
+          <option value="ADA">Adamawa</option>
+          <option value="AKW">Akwa Ibom</option>
+          <option value="ANA">Anambra</option>
+          <option value="BAU">Bauchi</option>
+          <option value="BAY">Bayelsa</option>
+          <option value="BEN">Benue</option>
+          <option value="BOR">Borno</option>
+          <option value="CRR">Cross River</option>
+          <option value="DEL">Delta</option>
+          <option value="EBO">Ebonyi</option>
+          <option value="EDO">Edo</option>
+          <option value="EKI">Ekiti</option>
+          <option value="ENU">Enugu</option>
+          <option value="GOM">Gombe</option>
+          <option value="IMO">Imo</option>
+          <option value="JIG">Jigawa</option>
+          <option value="KAD">Kaduna</option>
+          <option value="KAN">Kano</option>
+          <option value="KAT">Katsina</option>
+          <option value="KEB">Kebbi</option>
+          <option value="KOG">Kogi</option>
+          <option value="KWA">Kwara</option>
+          <option value="LAG">Lagos</option>
+          <option value="NAS">Nasarawa</option>
+          <option value="NIG">Niger</option>
+          <option value="OGU">Ogun</option>
+          <option value="OND">Ondo</option>
+          <option value="OSU">Osun</option>
+          <option value="OYO">Oyo</option>
+          <option value="PLA">Plateau</option>
+          <option value="RIV">Rivers</option>
+          <option value="SOK">Sokoto</option>
+          <option value="TAR">Taraba</option>
+          <option value="YOB">Yobe</option>
+          <option value="ZAM">Zamfara</option>
+        </select>
+        {errors.stateCode && <p className="text-red-500 text-sm">{errors.stateCode.message}</p>}
+
+
+         <select
+          className={`w-full p-3 mb-3 rounded-md border-none focus:ring-2 focus:ring-blue-200 focus:outline-none ${darkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"}`}
+          {...register("gender")}
+        >
+          <option value="">Select Gender</option>
+          <option value="M">Male</option>
+          <option value="F">Female</option>
+        </select>
+        {errors.gender && <p className="text-red-500 text-sm">{errors.gender.message}</p>}
  
-         <input 
-           className={`w-full p-3 mb-3 rounded-md border-none focus:ring-2 focus:ring-amber-200 focus:outline-none ${darkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"}`}
-           type="text" 
-           placeholder="State" 
-           {...register("state")} 
-         />
-         {errors.state && <p className="text-red-500 text-sm">{errors.state.message}</p>}
- 
+
          <input 
            className={`w-full p-3 mb-3 rounded-md border-none focus:ring-2 focus:ring-amber-200 focus:outline-none ${darkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"}`}
            type="password" 
@@ -93,6 +145,14 @@ const ChiefAdminSignup = () => {
            {...register("password")} 
          />
          {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+
+          <input 
+           className={`w-full p-3 mb-3 rounded-md border-none focus:ring-2 focus:ring-amber-200 focus:outline-none ${darkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"}`}
+           type="password" 
+           placeholder="Confirm Password" 
+           {...register("confirmPassword")} 
+         />
+         {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>}
  
        
  

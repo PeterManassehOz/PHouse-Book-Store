@@ -96,8 +96,17 @@ export const userAuthApi = createApi({
       }),
     }),
 
+    
+    forgotPHCode: builder.mutation({
+      query: (userData) => ({
+        url: '/forgot-phcode',
+        method: 'POST',
+        body: userData,
+      }),
+    }),
+
     }),
 });
 
-export const { useRegisterUserMutation, useLoginUserMutation, useResetUserPasswordMutation, useForgotPasswordMutation, useResetPasswordWithTokenMutation, useResendEmailOtpMutation, useVerifyEmailOtpMutation, useVerifyPhoneOtpMutation, useResendPhoneOtpMutation } = userAuthApi;
+export const { useRegisterUserMutation, useLoginUserMutation, useResetUserPasswordMutation, useForgotPasswordMutation, useResetPasswordWithTokenMutation, useResendEmailOtpMutation, useVerifyEmailOtpMutation, useVerifyPhoneOtpMutation, useResendPhoneOtpMutation, useForgotPHCodeMutation } = userAuthApi;
 export default userAuthApi;
