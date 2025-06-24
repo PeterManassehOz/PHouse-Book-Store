@@ -1,9 +1,17 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 
+
+// read the env var
+const API_BASE = import.meta.env.VITE_API_BASE;
+
+// log it so you know what the running code is actually using
+console.log('🛰️ API_BASE is:', API_BASE);
+
+
+
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:5000/books',
-  credentials: 'include',
+  baseUrl: `${API_BASE}/books`,
   prepareHeaders: (headers) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -26,7 +34,7 @@ export const bookAuthApi = createApi({
         // For each book in the response, prepend the base URL to the image property.
         return response.map((book) => ({
           ...book,
-          image: `http://localhost:5000/${book.image}`,
+          image: `${API_BASE}/${book.image}`,
         }));
       },
     }),
@@ -40,7 +48,7 @@ export const bookAuthApi = createApi({
         // For each book in the response, prepend the base URL to the image property.
         return response.map((book) => ({
           ...book,
-          image: `http://localhost:5000/${book.image}`,
+          image: `${API_BASE}/${book.image}`,
         }));
       },
     }),
@@ -53,7 +61,7 @@ export const bookAuthApi = createApi({
         // For each book in the response, prepend the base URL to the image property.
         return response.map((book) => ({
           ...book,
-          image: `http://localhost:5000/${book.image}`,
+          image: `${API_BASE}/${book.image}`,
         }));
       }
     }),
@@ -66,7 +74,7 @@ export const bookAuthApi = createApi({
         // For each book in the response, prepend the base URL to the image property.
         return response.map((yearBook) => ({
           ...yearBook,
-          image: `http://localhost:5000/${yearBook.image}`,
+          image: `${API_BASE}/${yearBook.image}`,
         }));
       },
     }),
@@ -80,7 +88,7 @@ export const bookAuthApi = createApi({
         },
         transformResponse: (response) => ({
           ...response,
-          image: `http://localhost:5000/${response.image}`,
+          image: `${API_BASE}/${response.image}`,
         }),
       }),
       getAuthorsOfTheWeek: builder.query({
@@ -90,10 +98,10 @@ export const bookAuthApi = createApi({
           return response.map((author) => ({
             ...author,
             // Correct the image URL using the authorImage field
-            authorImage: `http://localhost:5000/${author.authorImage}`,
+            authorImage: `${API_BASE}/${author.authorImage}`,
             books: author.books.map((book) => ({
               ...book,
-              image: `http://localhost:5000/${book.image}`,
+              image: `${API_BASE}/${book.image}`,
             })),
           }));
         },
