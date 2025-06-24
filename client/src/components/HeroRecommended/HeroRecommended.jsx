@@ -66,7 +66,7 @@ const HeroRecommended = () => {
     console.log("Fetched books:", fetchedBooks);
     console.log("Books from Redux:", recommendedBooks);
     if (isLoading) return <Loader />;
-    if (error) return <Error />
+    if (error) return <p className="text-red-500 text-center">Error loading books</p>
     
   
 

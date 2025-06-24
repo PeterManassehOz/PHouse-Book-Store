@@ -19,7 +19,7 @@ const fs = require('fs');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // For form data (text fields)
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174'], // Corrected the protocol
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://p-house-book-store.vercel.app', 'https://p-house-book-store-admin.vercel.app'], // Corrected the protocol
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
   }));

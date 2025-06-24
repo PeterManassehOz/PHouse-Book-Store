@@ -6,7 +6,7 @@ import Loader from "../Loader/Loader";
 
 const Author = () => {
   const navigate = useNavigate();
-  const [showError, setShowError] = useState(false);
+  const [showError, _setShowError] = useState(false);
   
   // Use the data directly (it’s already an array)
   const { data: authors = [], isLoading } = useGetAuthorsOfTheWeekQuery();
@@ -16,7 +16,24 @@ const Author = () => {
   console.log("API Response:", authors);
 
   if (isLoading) return <Loader />;
-  if (showError) return <Error onClose={() => setShowError(false)}/>
+  if (showError) return (
+    <div
+      className="min-h-screen bg-cover bg-center flex items-center justify-start rounded-md "
+      style={{ backgroundImage: "url('/Authenticate.jpg')" }}
+    >
+      <div className="m-6 sm:m-20">
+        <p className="text-white font-bold text-2xl sm:text-4xl md:text-6xl bg-black/50 p-4 sm:p-6 rounded-md max-w-sm sm:max-w-md">
+          Get authenticated to use Quorum.
+        </p>
+
+        <Link to="/login">
+          <button className="mt-10 bg-[#00013d] text-white text-xl px-3 py-5 rounded-md hover:bg-[#03055B] transition cursor-pointer">
+            Go to Login
+          </button>
+        </Link>
+      </div>
+    </div>
+  )
 
   const handleAudioClick = (author) => {
     // Navigate to the single author page, passing the author object in state

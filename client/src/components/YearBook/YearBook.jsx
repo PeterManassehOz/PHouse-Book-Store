@@ -10,7 +10,7 @@ import { setYearBooks } from '../../redux/cartSlice/cartSlice';
 const YearBook = () => {
   const navigate = useNavigate(); 
   const dispatch = useDispatch();
-  const [ showError, setShowError ] = useState(false);
+  const [ showError, _setShowError ] = useState(false);
 
   
   const { data: fetchedBooks, isLoading } = useGetAllYearBooksQuery();
@@ -33,7 +33,24 @@ const YearBook = () => {
   console.log("Fetched books:", fetchedBooks);
   console.log("Books from Redux:", yearBooks);
   if (isLoading) return <Loader />;
-  if (showError) return <Error onClose={() => setShowError(false)}/>
+  if (showError) return (
+    <div
+      className="min-h-screen bg-cover bg-center flex items-center justify-start rounded-md "
+      style={{ backgroundImage: "url('/Authenticate.jpg')" }}
+    >
+      <div className="m-6 sm:m-20">
+        <p className="text-white font-bold text-2xl sm:text-4xl md:text-6xl bg-black/50 p-4 sm:p-6 rounded-md max-w-sm sm:max-w-md">
+          Get authenticated to use Quorum.
+        </p>
+
+        <Link to="/login">
+          <button className="mt-10 bg-[#00013d] text-white text-xl px-3 py-5 rounded-md hover:bg-[#03055B] transition cursor-pointer">
+            Go to Login
+          </button>
+        </Link>
+      </div>
+    </div>
+  )
 
   const handleBookClick = (book) => {
     // Navigate to the single audio page
