@@ -15996,3 +15996,4 @@
 ::1 - - [25/Jun/2025:10:57:03 +0000] "POST /auth/signup HTTP/1.1" 201 188 "-" "PostmanRuntime/7.44.1"
 ::1 - - [25/Jun/2025:10:59:25 +0000] "POST /auth/login HTTP/1.1" 200 748 "-" "PostmanRuntime/7.44.1"
 ::1 - - [25/Jun/2025:11:00:29 +0000] "POST /auth/login HTTP/1.1" 200 748 "-" "PostmanRuntime/7.44.1"
+::1 - - [25/Jun/2025:11:08:30 +0000] "POST /auth/signup HTTP/1.1" 201 192 "-" "PostmanRuntime/7.44.1"

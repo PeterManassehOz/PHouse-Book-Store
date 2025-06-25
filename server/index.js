@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const cors = require('cors');
 const morgan = require('morgan');
 const cron = require('node-cron');
 const path = require('path');
@@ -11,31 +10,29 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-// -------------------- CORS Configuration --------------------
+// -------------------- CORS (Copied from index.js B) --------------------
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://p-house-book-store.vercel.app',
+    'https://p-house-book-store-admin.vercel.app'
+  ];
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'https://p-house-book-store.vercel.app',
-  'https://p-house-book-store-admin.vercel.app'
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // allow requests with no origin (e.g., mobile apps, curl)
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    return callback(new Error('Not allowed by CORS'));
-  },
-}));
-
-// Allow preflight requests
-app.options('*', cors());
-
-// -------------------- Body Parsing --------------------
+// -------------------- Body Parsers --------------------
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// -------------------- Morgan Logging --------------------
+// -------------------- Logging --------------------
 app.use(morgan('dev'));
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 app.use(morgan('combined', { stream: accessLogStream }));
