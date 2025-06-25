@@ -5,13 +5,14 @@ const morgan = require('morgan');
 const cron = require('node-cron');
 const path = require('path');
 const fs = require('fs');
+const cors = require('cors');
 
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
 
 // -------------------- CORS (Copied from index.js B) --------------------
-app.use((req, res, next) => {
+/*app.use((req, res, next) => {
   const origin = req.headers.origin;
   const allowedOrigins = [
     'http://localhost:5173',
@@ -26,7 +27,18 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
-});
+});*/
+
+
+
+// -------------------- CORS --------------------
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+app.options('*', cors()); // Preflight suppor
 
 // -------------------- Body Parsers --------------------
 app.use(express.json());
