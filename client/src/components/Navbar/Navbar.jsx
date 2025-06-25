@@ -46,7 +46,7 @@ const Navbar = () => {
 
 
   if (isLoading) return <Loader />
-  if (isError) return <p>Error loading data...</p>
+  if (isError) return <p className='text-center text-gray-600 pt-5'>Error loading data</p>
 
   return (
     <nav className={`py-3 shadow-md ${darkMode ? "bg-gray-900 text-white" : "bg-white text-black"}`}>
