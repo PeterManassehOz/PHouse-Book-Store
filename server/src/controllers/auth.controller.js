@@ -272,7 +272,7 @@ const forgotPassword = async (req, res) => {
       await user.save();
   
       // Send email with reset link
-      const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+      const resetUrl = `https://p-house-book-store.vercel.app/reset-password/${resetToken}`;
       const mailOptions = {
         from: process.env.EMAIL_USER,
         to: user.email,
