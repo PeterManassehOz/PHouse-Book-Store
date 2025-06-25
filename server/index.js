@@ -18,11 +18,22 @@ const fs = require('fs');
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // For form data (text fields)
-app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://p-house-book-store.vercel.app', 'https://p-house-book-store-admin.vercel.app'], // Corrected the protocol
-    credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  }));
+  app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowed = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://p-house-book-store.vercel.app',
+    'https://p-house-book-store-admin-vercel-app.vercel.app'
+  ];
+  if (allowed.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
 
 
 const morgan = require('morgan');
