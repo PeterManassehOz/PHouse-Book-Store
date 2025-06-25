@@ -1,27 +1,27 @@
+// index.js
 const cron = require('node-cron');
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 require('dotenv').config();
 const cors = require('cors');
-const port = process.env.PORT;
-const path = require("path");
-const Book = require('./src/models/books.model');
-const FailedTransaction = require('./src/models/failedTransaction.model');
+const path = require('path');
 const fs = require('fs');
 
+// Models for cron jobs
+const Book = require('./src/models/books.model');
+const FailedTransaction = require('./src/models/failedTransaction.model');
 
-
-
-
-
-// Middleware
+// ——————————————————————————————————————————————
+// 1) BODY PARSERS
+// ——————————————————————————————————————————————
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // For form data (text fields)
+app.use(express.urlencoded({ extended: true }));
 
-
-
-// CORS: allow your front-end origins and Authorization header
+// ——————————————————————————————————————————————
+// 2) CORS
+// ——————————————————————————————————————————————
+// Define exactly which origins you want to allow:
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
@@ -29,129 +29,121 @@ const allowedOrigins = [
   'https://p-house-book-store-admin.vercel.app'
 ];
 
+// “app.use(cors())” runs on all requests (GET/POST/PUT/DELETE/OPTIONS…),
+// but we explicitly include OPTIONS in our allowed methods.
 app.use(cors({
   origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization']
 }));
 
-// Explicitly handle preflight OPTIONS for all routes
+// This ensures that *every* OPTIONS (preflight) request
+// also gets the CORS headers before hitting any route.
 app.options('*', cors({
   origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization']
 }));
 
-
-
+// ——————————————————————————————————————————————
+// 3) LOGGING
+// ——————————————————————————————————————————————
 const morgan = require('morgan');
 app.use(morgan('dev'));
-
-
-const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
+const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, 'access.log'),
+  { flags: 'a' }
+);
 app.use(morgan('combined', { stream: accessLogStream }));
 
-  
-app.use("/uploads", express.static(path.join(__dirname, "src/uploads")));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// ——————————————————————————————————————————————
+// 4) STATIC FILES
+// ——————————————————————————————————————————————
+app.use('/uploads', express.static(path.join(__dirname, 'src/uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// ——————————————————————————————————————————————
+// 5) ROUTES
+// ——————————————————————————————————————————————
+const authRoutes         = require('./src/routes/auth.route');
+const userRoutes         = require('./src/routes/users.route');
+const orderRoutes        = require('./src/routes/orders.route');
+const bookRoutes         = require('./src/routes/books.route');
+const adminRoutes        = require('./src/routes/admin.route');
+const newsletterRoutes   = require('./src/routes/newsletter.route');
+const flutterwaveRoutes  = require('./src/routes/flutterwave.route');
+const adminOrdersRoutes  = require('./src/routes/adminOrders.route');
 
+app.use('/auth',         authRoutes);
+app.use('/users',        userRoutes);
+app.use('/orders',       orderRoutes);
+app.use('/books',        bookRoutes);
+app.use('/admin',        adminRoutes);
+app.use('/newsletter',   newsletterRoutes);
+app.use('/flutterwave',  flutterwaveRoutes);
+app.use('/adminorders',  adminOrdersRoutes);
 
-
-  
-const authRoutes = require('./src/routes/auth.route');
-const userRoutes = require('./src/routes/users.route');
-const orderRoutes = require('./src/routes/orders.route');
-const bookRoutes = require('./src/routes/books.route');
-const adminRoutes = require('./src/routes/admin.route');
-const newsletterRoutes = require("./src/routes/newsletter.route");
-const flutterwaveRoutes = require('./src/routes/flutterwave.route');
-const adminOrdersRoutes = require('./src/routes/adminOrders.route');
-
-
-
-
-
-app.use(express.json());
-app.use('/auth', authRoutes);
-app.use('/users', userRoutes);
-app.use('/orders', orderRoutes);
-app.use('/books', bookRoutes);
-app.use('/admin', adminRoutes);
-app.use('/newsletter', newsletterRoutes);
-app.use('/flutterwave', flutterwaveRoutes);
-app.use('/adminorders', adminOrdersRoutes);
-
-
-
-
-
-async function main() {
-    await mongoose.connect(process.env.DB_URL);
-    console.log('Connected to DB');
-    
-      // Schedule the cron job to run on January 1st at midnight
-      cron.schedule('0 0 1 1 *', async () => {
-        console.log('Running yearly book update...');
-        try {
-            await Book.updateYearlyBooks();
-            console.log('Yearly books updated successfully!');
-        } catch (error) {
-            console.error('Error updating yearly books:', error);
-        }
-    });
-
-      // Cron job to retry failed transactions
-      cron.schedule('*/5 * * * *', async () => {
-        console.log('Retrying failed webhook transactions...');
-        try {
-          // Fetch failed transactions from DB
-          const failedTransactions = await FailedTransaction.find({ status: 'failed' });
-          console.log(`Found ${failedTransactions.length} failed transactions`);
-      
-          for (let transaction of failedTransactions) {
-            try {
-              console.log(`Retrying transaction with ID: ${transaction.transaction_id}`);
-      
-              // Retry the verification of the failed transaction
-              const response = await flw.Transaction.verify({ id: transaction.transaction_id });
-              console.log(`Verification response: ${JSON.stringify(response)}`);
-      
-              if (response.status === 'successful') {
-                console.log(`Successfully retried transaction: ${transaction.transaction_id}`);
-                // Update transaction status to successful
-                await FailedTransaction.findByIdAndUpdate(transaction._id, { status: 'successful' });
-              } else {
-                console.log(`Transaction verification failed: ${transaction.transaction_id} with status: ${response.status}`);
-              }
-            } catch (error) {
-              console.error(`Error retrying transaction: ${transaction.transaction_id}`, error);
-            }
-          }
-        } catch (error) {
-          console.error('Error during cron job:', error);
-        }
-      });
-      
-
-    app.get('/', (req, res) => {
-        res.send('PHouse BookStore server is running!');
-    });
-}
-
-
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('UNHANDLED REJECTION:', reason);
+// A simple root health check
+app.get('/', (req, res) => {
+  res.send('PHouse BookStore server is running!');
 });
 
+// ——————————————————————————————————————————————
+// 6) DB & CRON SETUP
+// ——————————————————————————————————————————————
+async function main() {
+  await mongoose.connect(process.env.DB_URL);
+  console.log('Connected to DB');
+
+  // Yearly book update: Jan 1 at 00:00
+  cron.schedule('0 0 1 1 *', async () => {
+    console.log('Running yearly book update...');
+    try {
+      await Book.updateYearlyBooks();
+      console.log('Yearly books updated successfully!');
+    } catch (err) {
+      console.error('Error updating yearly books:', err);
+    }
+  });
+
+  // Retry failed transactions every 5 minutes
+  cron.schedule('*/5 * * * *', async () => {
+    console.log('Retrying failed webhook transactions...');
+    try {
+      const failed = await FailedTransaction.find({ status: 'failed' });
+      console.log(`Found ${failed.length} failed transactions`);
+      for (let tx of failed) {
+        try {
+          const resp = await flw.Transaction.verify({ id: tx.transaction_id });
+          console.log(`Verification response: ${JSON.stringify(resp)}`);
+          if (resp.status === 'successful') {
+            await FailedTransaction.findByIdAndUpdate(tx._id, { status: 'successful' });
+            console.log(`Transaction ${tx.transaction_id} marked successful`);
+          }
+        } catch (err) {
+          console.error(`Error retrying ${tx.transaction_id}:`, err);
+        }
+      }
+    } catch (err) {
+      console.error('Error during cron retry:', err);
+    }
+  });
+}
+
+// Catch-all unhandled errors
+process.on('unhandledRejection', (reason) => {
+  console.error('UNHANDLED REJECTION:', reason);
+});
 process.on('uncaughtException', (err) => {
   console.error('UNCAUGHT EXCEPTION:', err.stack || err);
 });
 
+// Start everything
+main()
+  .then(() => console.log('Setup complete'))
+  .catch(err => console.error('Setup error:', err));
 
-
-main().then(() => console.log('Connected to DB')).catch(err => console.log(err));
-
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
