@@ -18,11 +18,30 @@ const fs = require('fs');
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // For form data (text fields)
+
+
+
+// CORS: allow your front-end origins and Authorization header
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'https://p-house-book-store.vercel.app',
+  'https://p-house-book-store-admin.vercel.app'
+];
+
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://p-house-book-store.vercel.app', 'https://p-house-book-store-admin.vercel.app'], // Corrected the protocol
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type','Authorization']
-  }));
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Explicitly handle preflight OPTIONS for all routes
+app.options('*', cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 
 
 const morgan = require('morgan');
