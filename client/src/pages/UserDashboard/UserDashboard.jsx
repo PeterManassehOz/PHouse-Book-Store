@@ -55,7 +55,12 @@ const UserDashboard = () => {
       localStorage.removeItem("email");
       localStorage.removeItem("phonenumber");
 
+      persistor.pause();
+
+
       await persistor.purge();
+
+      localStorage.removeItem('persist:cart');
 
 
       dispatch(bookAuthApi.util.resetApiState());
@@ -70,7 +75,7 @@ const UserDashboard = () => {
       dispatch(resetTheme());
 
 
-      navigate("/login");
+      window.location.href = '/login';
     };
 
 
