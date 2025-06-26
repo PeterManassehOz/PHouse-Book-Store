@@ -24,7 +24,7 @@ const schema = yup.object().shape({
   street: yup.string().required('Street is required'),
   city: yup.string().required('City is required'),
 
-  zipcode: yup.string().matches(/^\d{5}$/, 'Invalid zipcode').required('Zipcode is required'),
+  zipcode: yup.string().matches(/^\d{6}$/, 'Invalid zipcode').required('Zipcode is required'),
 });
 
 
