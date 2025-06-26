@@ -48,35 +48,29 @@ const UserDashboard = () => {
     };
   
     const logOut = async () => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("phcode");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userProfile");
-      localStorage.removeItem("email");
-      localStorage.removeItem("phonenumber");
+    // 1️⃣ Hard‐clear every bit of browser storage
+    localStorage.clear();
+    sessionStorage.clear();
 
-      persistor.pause();
+    // 2️⃣ Purge redux‐persist (removes your cart slice from storage)
+    await persistor.purge();
 
+    // 3️⃣ Reset all RTK‐Query caches
+    dispatch(bookAuthApi.util.resetApiState());
+    dispatch(orderAuthApi.util.resetApiState());
+    dispatch(profileAuthApi.util.resetApiState());
+    dispatch(flutterwaveAuthApi.util.resetApiState());
+    dispatch(newsLetterAuthApi.util.resetApiState());
+    dispatch(userAuthApi.util.resetApiState());
 
-      await persistor.purge();
+    // 4️⃣ Reset your hand-rolled slices
+    dispatch(clearCart());
+    dispatch(resetTheme());
 
-      localStorage.removeItem('persist:cart');
+    // 5️⃣ Hard‐reload onto the login page
+    window.location.href = '/login';
+  };
 
-
-      dispatch(bookAuthApi.util.resetApiState());
-      dispatch(orderAuthApi.util.resetApiState());
-      dispatch(profileAuthApi.util.resetApiState());
-      dispatch(flutterwaveAuthApi.util.resetApiState());
-      dispatch(newsLetterAuthApi.util.resetApiState());
-      dispatch(userAuthApi.util.resetApiState());
-
-
-      dispatch(clearCart());
-      dispatch(resetTheme());
-
-
-      window.location.href = '/login';
-    };
 
 
 
