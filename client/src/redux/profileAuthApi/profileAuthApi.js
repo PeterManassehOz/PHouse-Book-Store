@@ -32,9 +32,6 @@ export const profileAuthApi = createApi({
               url: '/profile',
               method: 'PUT',
               body: formData,
-              headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`, 
-              },
             }),
             invalidatesTags: ['Profile'], // This ensures the query is refetched after mutation
           }),
