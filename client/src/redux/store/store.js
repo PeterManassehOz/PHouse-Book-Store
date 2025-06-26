@@ -1,45 +1,73 @@
-import { configureStore } from '@reduxjs/toolkit';
+// store.js
+import { combineReducers } from 'redux';
+import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
+import { 
+  persistReducer, 
+  persistStore, 
+  FLUSH, 
+  PAUSE, 
+  PERSIST, 
+  PURGE, 
+  REGISTER, 
+  REHYDRATE 
+} from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+
 import themeReducer from '../themeSlice/themeSlice';
 import cartReducer from '../cartSlice/cartSlice';
-import storage from 'redux-persist/lib/storage'; // Default localStorage
-import { persistReducer, persistStore } from 'redux-persist';
-import { newsLetterAuthApi } from '../newsLetterAuthApi/newsLetterAuthApi';
-import userAuthApi from '../userAuthApi/userAuthApi';
-import profileAuthApi from '../profileAuthApi/profileAuthApi';
-import { bookAuthApi } from '../bookAuthApi/bookAuthApi';
-import { orderAuthApi } from '../orderAuthApi/orderAuthApi';
-import { flutterwaveAuthApi } from '../flutterwaveAuthApi/flutterwaveAuthApi';
+import { newsLetterAuthApi }  from '../newsLetterAuthApi/newsLetterAuthApi';
+import userAuthApi           from '../userAuthApi/userAuthApi';
+import profileAuthApi        from '../profileAuthApi/profileAuthApi';
+import { bookAuthApi }       from '../bookAuthApi/bookAuthApi';
+import { orderAuthApi }      from '../orderAuthApi/orderAuthApi';
+import { flutterwaveAuthApi }from '../flutterwaveAuthApi/flutterwaveAuthApi';
 
-
-
-
-const persistConfig = {
-  key: 'cart',  // Only persist the 'cart' state
+// 1️⃣ configure your cart-persist
+const cartPersistConfig = {
+  key:   'cart',
   storage,
-  whitelist: ['cartItems', 'books', 'popularBooks', 'yearBooks'], // Specify what to persist
+  whitelist: ['cartItems', 'books', 'popularBooks', 'yearBooks'],
+};
+const persistedCartReducer = persistReducer(cartPersistConfig, cartReducer);
+
+// 2️⃣ combine your slices & RTK Query reducers
+const appReducer = combineReducers({
+  theme:    themeReducer,
+  cart:     persistedCartReducer,
+  [newsLetterAuthApi.reducerPath]:     newsLetterAuthApi.reducer,
+  [userAuthApi.reducerPath]:           userAuthApi.reducer,
+  [profileAuthApi.reducerPath]:        profileAuthApi.reducer,
+  [bookAuthApi.reducerPath]:           bookAuthApi.reducer,
+  [orderAuthApi.reducerPath]:          orderAuthApi.reducer,
+  [flutterwaveAuthApi.reducerPath]:    flutterwaveAuthApi.reducer,
+});
+
+// 3️⃣ wrap in a root reducer that catches logout
+const rootReducer = (state, action) => {
+  if (action.type === 'user/logout') {
+    // nuke the persisted storage key — so on next load there is nothing to rehydrate
+    storage.removeItem('persist:cart');
+    // you could also remove 'persist:root' if you ever persisted more slices under key 'root'
+    return appReducer(undefined, action);
+  }
+  return appReducer(state, action);
 };
 
-const persistedCartReducer = persistReducer(persistConfig, cartReducer);
-
 export const store = configureStore({
-  reducer: {
-    theme: themeReducer,
-    cart: persistedCartReducer,
-    [newsLetterAuthApi.reducerPath]: newsLetterAuthApi.reducer,
-    [userAuthApi.reducerPath]: userAuthApi.reducer,
-    [profileAuthApi.reducerPath]: profileAuthApi.reducer,
-    [bookAuthApi.reducerPath]: bookAuthApi.reducer,
-    [orderAuthApi.reducerPath]: orderAuthApi.reducer,
-    [flutterwaveAuthApi.reducerPath]: flutterwaveAuthApi.reducer,
-  },
-  
-  middleware: (getDefaultMiddleware) => 
-    getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: ['persist/PERSIST'], // Ignore persist actions
-        ignoredPaths: ['cart.register'], // Ignore non-serializable paths
-      },
-    }).concat(newsLetterAuthApi.middleware, userAuthApi.middleware, profileAuthApi.middleware, bookAuthApi.middleware, orderAuthApi.middleware, flutterwaveAuthApi.middleware),
+  reducer: rootReducer,
+  middleware: getDefaultMiddleware({
+    serializableCheck: {
+      // you need to ignore redux-persist action types
+      ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+    }
+  }).concat(
+    newsLetterAuthApi.middleware,
+    userAuthApi.middleware,
+    profileAuthApi.middleware,
+    bookAuthApi.middleware,
+    orderAuthApi.middleware,
+    flutterwaveAuthApi.middleware,
+  ),
 });
 
 export const persistor = persistStore(store);
