@@ -47,15 +47,18 @@ const UserDashboard = () => {
       setSelectedComponent(null);
     };
   
-    
-  const logOut = async () => {
-    // 1️⃣ dispatch your “real” logout — this hits the root reducer, which wipes persisted cart
-    dispatch({ type: 'user/logout' });
+     const logOut = async () => {
+    // 1️⃣ pause redux-persist from re-saving anything
+    persistor.pause();
 
-    // 2️⃣ purge any in-memory redux-persist cache
+    // 2️⃣ purge whatever persistReducer wrote
     await persistor.purge();
 
-    // 3️⃣ clear out ALL your RTK Query caches
+    // 3️⃣ nuke every browser storage key
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // 4️⃣ reset RTK Query state
     dispatch(bookAuthApi.util.resetApiState());
     dispatch(orderAuthApi.util.resetApiState());
     dispatch(profileAuthApi.util.resetApiState());
@@ -63,14 +66,13 @@ const UserDashboard = () => {
     dispatch(newsLetterAuthApi.util.resetApiState());
     dispatch(userAuthApi.util.resetApiState());
 
-    // 4️⃣ reset any non-persisted slices you care about
+    // 5️⃣ reset your non-persisted slices
     dispatch(clearCart());
     dispatch(resetTheme());
 
-    // 5️⃣ navigate back to login (hard reload)
+    // 6️⃣ hard‐reload to boot from a blank slate
     window.location.href = '/login';
   };
-
 
 
 

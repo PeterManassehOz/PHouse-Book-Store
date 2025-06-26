@@ -83,6 +83,41 @@ app.use('/newsletter',   newsletterRoutes);
 app.use('/flutterwave',  flutterwaveRoutes);
 app.use('/adminorders',  adminOrdersRoutes);
 
+// Log any request that didn’t match one of your defined routes
+app.use((req, res, next) => {
+  console.log(`❓ Unmatched route: ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+app.use((req, res, next) => {
+  console.log(`⚠️  Incoming request path: ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+// after all your app.use('/XXX', ...) calls
+function listEndpoints(app) {
+  console.log('🔍 Registered routes:');
+  app._router.stack.forEach(mw => {
+    if (mw.route) {
+      // routes registered directly on the app
+      const path = mw.route?.path;
+      const methods = Object.keys(mw.route.methods).join(', ').toUpperCase();
+      console.log(`  ${methods} ${path}`);
+    } else if (mw.name === 'router') {
+      // router middleware 
+      mw.handle.stack.forEach(handler => {
+        const path = handler.route?.path;
+        const methods = handler.route
+          ? Object.keys(handler.route.methods).join(', ').toUpperCase()
+          : '';
+        console.log(`  ${methods} ${mw.regexp} -> ${path}`);
+      });
+    }
+  });
+}
+listEndpoints(app);
+
+
 // A simple root health check
 app.get('/', (req, res) => {
   res.send('PHouse BookStore server is running!');
@@ -143,7 +178,11 @@ main()
   .then(() => console.log('Setup complete'))
   .catch(err => console.error('Setup error:', err));
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
+
+
+
+
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
