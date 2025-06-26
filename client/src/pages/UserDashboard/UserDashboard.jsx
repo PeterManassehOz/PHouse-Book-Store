@@ -13,11 +13,23 @@ import { TbCurrencyNaira } from "react-icons/tb";
 import useUserProfile from "../../hooks/useUserProfile";
 import UserTransactions from '../../components/UserTransactions/UserTransactions';
 import LivingSeed from "/LSeed-Logo-1.png";
+import { persistor } from '../../redux/store/store';
+import { clearCart }         from '../../redux/cartSlice/cartSlice';
+import { useDispatch } from 'react-redux';
+import { bookAuthApi } from '../../redux/bookAuthApi/bookAuthApi';
+import { orderAuthApi } from '../../redux/orderAuthApi/orderAuthApi';
+import { profileAuthApi } from '../../redux/profileAuthApi/profileAuthApi';
+import { flutterwaveAuthApi } from '../../redux/flutterwaveAuthApi/flutterwaveAuthApi';
+import { newsLetterAuthApi } from '../../redux/newsLetterAuthApi/newsLetterAuthApi';
+import { userAuthApi } from '../../redux/userAuthApi/userAuthApi';
+import { resetTheme } from '../../redux/themeSlice/themeSlice';
+
 
 
 
 const UserDashboard = () => {
 
+  const dispatch = useDispatch();
   const darkMode = useSelector((state) => state.theme.darkMode);
 
   const { userProfile, profileImageUrl } = useUserProfile();
@@ -35,13 +47,29 @@ const UserDashboard = () => {
       setSelectedComponent(null);
     };
   
-    const logOut = () => {
+    const logOut = async () => {
       localStorage.removeItem("token");
       localStorage.removeItem("phcode");
       localStorage.removeItem("userId");
       localStorage.removeItem("userProfile");
       localStorage.removeItem("email");
       localStorage.removeItem("phonenumber");
+
+      await persistor.purge();
+
+
+      dispatch(bookAuthApi.util.resetApiState());
+      dispatch(orderAuthApi.util.resetApiState());
+      dispatch(profileAuthApi.util.resetApiState());
+      dispatch(flutterwaveAuthApi.util.resetApiState());
+      dispatch(newsLetterAuthApi.util.resetApiState());
+      dispatch(userAuthApi.util.resetApiState());
+
+
+      dispatch(clearCart());
+      dispatch(resetTheme());
+
+
       navigate("/login");
     };
 

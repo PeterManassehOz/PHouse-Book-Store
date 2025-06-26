@@ -12,8 +12,12 @@ const themeSlice = createSlice({
       state.darkMode = !state.darkMode;
       localStorage.setItem('darkMode', state.darkMode); // Save to localStorage
     },
+    resetTheme: (state) => {
+      state.darkMode = false; // Reset to light mode
+      localStorage.setItem('darkMode', 'false'); // Update localStorage
+    }
   },
 });
 
-export const { toggleDarkMode } = themeSlice.actions;
+export const { toggleDarkMode, resetTheme } = themeSlice.actions;
 export default themeSlice.reducer;
