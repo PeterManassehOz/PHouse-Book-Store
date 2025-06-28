@@ -10,7 +10,7 @@ import { IoIosPerson } from 'react-icons/io';
 import { FaFileInvoice } from "react-icons/fa6";
 import { MdLockReset } from "react-icons/md";
 import { TbCurrencyNaira } from "react-icons/tb";
-import useUserProfile from "../../hooks/useUserProfile";
+import { useGetUserProfileQuery } from '../../redux/profileAuthApi/profileAuthApi';
 import UserTransactions from '../../components/UserTransactions/UserTransactions';
 import LivingSeed from "/LSeed-Logo-1.png";
 import { persistor } from '../../redux/store/store';
@@ -32,7 +32,8 @@ const UserDashboard = () => {
   const dispatch = useDispatch();
   const darkMode = useSelector((state) => state.theme.darkMode);
 
-  const { userProfile, profileImageUrl } = useUserProfile();
+  
+  const { data: userProfile } = useGetUserProfileQuery();
 
   
   const navigate = useNavigate();
@@ -115,7 +116,7 @@ const UserDashboard = () => {
           {/* Profile Image & Name */}
           <div className="flex flex-row items-center gap-2 mt-6">
             <img
-              src={profileImageUrl}
+              src={userProfile?.image}
               alt="Profile"
               className="w-10 h-10 md:w-13 md:h-13 lg:w-13 lg:h-13 object-cover rounded-full shadow-md"
             />

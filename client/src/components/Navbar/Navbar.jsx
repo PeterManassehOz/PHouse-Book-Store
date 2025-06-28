@@ -4,8 +4,8 @@ import LivingSeed from "/LSeed-Logo-1.png";
 import { Link, useNavigate } from 'react-router-dom';
 import { ImCart } from "react-icons/im";
 import { useSelector } from 'react-redux';
-import useUserProfile from '../../hooks/useUserProfile';
-import { useGetAllBooksQuery } from '../../redux/bookAuthApi/bookAuthApi'; // Import RTK Query hook
+import { useGetUserProfileQuery } from '../../redux/profileAuthApi/profileAuthApi';
+import { useGetAllBooksQuery } from '../../redux/bookAuthApi/bookAuthApi'; 
 import Loader from '../Loader/Loader';
 
 
@@ -19,7 +19,7 @@ const Navbar = () => {
   const cartItems = useSelector(state => state.cart.cartItems);
   const totalCartItems = cartItems.reduce((acc, item) => acc + item.cartQuantity, 0);
   const darkMode = useSelector((state) => state.theme.darkMode);
-  const { profileImageUrl } = useUserProfile();
+  const { data: userProfile } = useGetUserProfileQuery();
   const { data: books = [], isLoading, isError } = useGetAllBooksQuery();
 
   // Fetch books data
@@ -89,7 +89,7 @@ const Navbar = () => {
         {/* Profile and Cart */}
         <div className="w-1/3 flex justify-end items-center space-x-4">
           <Link to="/user-dashboard">
-            <img src={profileImageUrl} alt="User" className="w-8 sm:w-10 h-8 sm:h-10 rounded-full border-2 border-amber-400 cursor-pointer"/>
+            <img src={userProfile?.image} alt="User" className="w-8 sm:w-10 h-8 sm:h-10 rounded-full border-2 border-amber-400 cursor-pointer"/>
           </Link>
           <div className="h-6 sm:h-8 border-l border-amber-700"></div>
           <Link to="/cart" className="relative mr-4 sm:mr-0">

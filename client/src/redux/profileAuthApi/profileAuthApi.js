@@ -27,7 +27,7 @@ export const profileAuthApi = createApi({
     baseQuery,
     tagTypes: ['Profile'], // Add this line
     endpoints: (builder) => ({
-        updateProfile: builder.mutation({
+      updateProfile: builder.mutation({
             query: (formData) => ({
               url: '/profile',
               method: 'PUT',
@@ -36,13 +36,27 @@ export const profileAuthApi = createApi({
             invalidatesTags: ['Profile'], // This ensures the query is refetched after mutation
           }),
   
-          getUserProfile: builder.query({
-            query: () => ({
-              url: '/profile',
-              method: 'GET',
-            }),
-            providesTags: ['Profile'], // This marks the query as cacheable under 'Profile' tag
-          }),
+      getUserProfile: builder.query({
+      query: () => ({
+        url: '/profile',
+        method: 'GET',
+      }),
+      providesTags: ['Profile'],
+      transformResponse: (response) => {
+      let image = response?.image || null; // Default to null if image is not present
+
+        if (image) {
+          const timestamp = new Date().getTime();
+          image = `${API_BASE}/uploads/${response.image.split("/").pop()}?t=${timestamp}`;
+        }
+
+        // ✅ Return transformed response with image URL directly included
+        return {
+          ...response,
+          image,
+        };
+      },
+    }),
     }),
   });
   
