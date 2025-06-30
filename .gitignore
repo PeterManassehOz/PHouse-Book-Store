@@ -1,8 +1,6 @@
 # .gitignore
 /server/.env
 /server/node_modules
-/server/uploads
-/server/src/uploads
 /client/node_modules
 /client/.env
 /admin/node_modules
