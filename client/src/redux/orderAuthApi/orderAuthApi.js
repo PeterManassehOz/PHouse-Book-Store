@@ -30,17 +30,20 @@ export const orderAuthApi = createApi({
         }),
       }),
   
-     getOrdersForUser: builder.query({
-      query: () => '/user',
-      transformResponse: (rawOrders) =>
-        rawOrders.map((order) => ({
-          ...order,
-          productIds: order.productIds.map((product) => ({
-            ...product,
-            image: product.image || null, // ✅ Use public GCS URL directly
-          })),
-        })),
-    }),
+      getOrdersForUser: builder.query({
+          query: () => '/user',
+          transformResponse: (rawOrders) =>
+            rawOrders.map((order) => ({
+              ...order,
+              items: order.items.map(({ bookId, quantity }) => ({
+                // pull the populated book document
+                ...bookId,
+                quantity,                             // now the real ordered quantity
+                subtotal: bookId.price * quantity,    // compute line total
+                image: bookId.image || null,          // pass through your GCS URL
+              })),
+            })),
+        }),
 
 
       getOrderStatus: builder.query({

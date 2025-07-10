@@ -51,6 +51,18 @@ const AdminOrders = () => {
               <p className="mb-1">
                 <span className="font-medium">Email:</span> {order.email}
               </p>
+              <p className="mb-1">
+                <span className="font-medium">Phone:</span> {order.phone || "N/A"}
+              </p>
+              <p className="mb-1">
+                <span className="font-medium">Street:</span> {order.street || "N/A"}
+              </p>
+              <p className="mb-1">
+                <span className="font-medium">City:</span> {order.city || "N/A"}
+              </p>
+              <p className="mb-1">
+                  <span className="font-medium">Zipcode:</span> {order.zipcode || "N/A"}
+              </p>
               <p className="mb-2">
                 <span className="font-medium">Status:</span>{" "}
                 <span
@@ -87,6 +99,26 @@ const AdminOrders = () => {
                   )
                 )}
               </select>
+
+                            
+              <div className="mt-4">
+                <h4 className="text-md font-semibold mb-2">Books Ordered:</h4>
+                {order.items.map(({ bookId, quantity }, idx) => (
+                  <div
+                    key={idx}
+                    className={`mb-2 p-2 rounded-md border ${
+                      darkMode
+                        ? "bg-gray-700 border-gray-600 text-white"
+                        : "bg-gray-100 border-gray-300 text-black"
+                    }`}
+                  >
+                    <p className="font-medium">{bookId?.title || "Unknown Title"}</p>
+                    <p className="text-sm">
+                      Quantity: <span className="font-semibold">{quantity}</span>
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>

@@ -78,7 +78,10 @@ const CheckOut = () => {
         zipcode: orderData.zipcode,
         phone: orderData.phone,
         state: orderData.state,
-        productIds: cartItems.map(item => item._id),
+        items: cartItems.map(item => ({
+          bookId: item._id,
+          quantity: item.cartQuantity
+        })),
         totalPrice: totalPrice,
       };
     
