@@ -1,6 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-
 // read the env var
 const API_BASE = import.meta.env.VITE_API_BASE;
 
@@ -18,35 +17,38 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
-
-
 export const profileAuthApi = createApi({
-    reducerPath: 'profileAuthApi',
-    baseQuery,
-    tagTypes: ['Profile'], // Add this line
-    endpoints: (builder) => ({
-        updateProfile: builder.mutation({
-            query: (formData) => ({
-              url: '/profile',
-              method: 'PUT',
-              body: formData,
-              headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`, 
-              },
-            }),
-            invalidatesTags: ['Profile'], // This ensures the query is refetched after mutation
-          }),
-  
-          getUserProfile: builder.query({
-            query: () => ({
-              url: '/profile',
-              method: 'GET',
-            }),
-            providesTags: ['Profile'], // This marks the query as cacheable under 'Profile' tag
-          }),
+  reducerPath: 'profileAuthApi',
+  baseQuery,
+  tagTypes: ['Profile'],
+  endpoints: (builder) => ({
+    updateProfile: builder.mutation({
+      query: (formData) => ({
+        url: '/profile',
+        method: 'PUT',
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      }),
+      invalidatesTags: ['Profile'],
     }),
-  });
-  
-  
-  export const { useUpdateProfileMutation, useGetUserProfileQuery } = profileAuthApi;
-  export default profileAuthApi;
+
+    getUserProfile: builder.query({
+      query: () => ({
+        url: '/profile',
+        method: 'GET',
+      }),
+      providesTags: ['Profile'],
+      transformResponse: (response) => {
+        return {
+          ...response,
+          image: response?.image ? `${response.image}?t=${Date.now()}` : null,
+        };
+      }
+    }),
+  }),
+});
+
+export const { useUpdateProfileMutation, useGetUserProfileQuery } = profileAuthApi;
+export default profileAuthApi;

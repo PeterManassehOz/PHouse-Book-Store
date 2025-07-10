@@ -49,18 +49,14 @@ export const adminBookAuthApi = createApi({
           method: 'GET',
         }),
         transformResponse: (response) => {
-          const timestamp = new Date().getTime();
-      
           const recentOrders = response.orders.recentOrders.map((order) => ({
             ...order,
             userId: {
               ...order.userId,
-              image: order.userId?.image
-                ? `${API_BASE}/uploads/${order.userId.image.split("/").pop()}?t=${timestamp}`
-                : null,
+              image: order.userId?.image || null, // already a full GCS URL
             },
           }));
-      
+
           return {
             ...response,
             orders: {
@@ -70,7 +66,7 @@ export const adminBookAuthApi = createApi({
           };
         },
       }),
-      
+
       
     updateBook: builder.mutation({
         query: ({ id, studyData }) => ({

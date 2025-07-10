@@ -31,12 +31,12 @@ export const bookAuthApi = createApi({
         method: 'GET',
       }),
       transformResponse: (response) => {
-        // For each book in the response, prepend the base URL to the image property.
         return response.map((book) => ({
           ...book,
-          image: `${API_BASE}/${book.image}`,
+          // GCS URL already complete, no need to transform
+          image: book.image,
         }));
-      },
+      }
     }),
         
     getAllPopularBooks: builder.query({
@@ -44,24 +44,24 @@ export const bookAuthApi = createApi({
         url: '/popular',
         method: 'GET',
       }),
-      transformResponse: (response) => {
-        // For each book in the response, prepend the base URL to the image property.
+        transformResponse: (response) => {
         return response.map((book) => ({
           ...book,
-          image: `${API_BASE}/${book.image}`,
+          // GCS URL already complete, no need to transform
+          image: book.image,
         }));
-      },
+      }
     }),
     getAllRecommendedBooks: builder.query({
       query: () => ({
         url: '/recommended',
         method: 'GET',
       }),
-      transformResponse: (response) => {
-        // For each book in the response, prepend the base URL to the image property.
+       transformResponse: (response) => {
         return response.map((book) => ({
           ...book,
-          image: `${API_BASE}/${book.image}`,
+          // GCS URL already complete, no need to transform
+          image: book.image,
         }));
       }
     }),
@@ -71,12 +71,12 @@ export const bookAuthApi = createApi({
         method: 'GET',
       }),
       transformResponse: (response) => {
-        // For each book in the response, prepend the base URL to the image property.
-        return response.map((yearBook) => ({
-          ...yearBook,
-          image: `${API_BASE}/${yearBook.image}`,
+        return response.map((book) => ({
+          ...book,
+          // GCS URL already complete, no need to transform
+          image: book.image,
         }));
-      },
+      }
     }),
     getBookById: builder.query({
         query: (id) => {
@@ -86,25 +86,26 @@ export const bookAuthApi = createApi({
             method: 'GET',
           };
         },
-        transformResponse: (response) => ({
-          ...response,
-          image: `${API_BASE}/${response.image}`,
-        }),
+         transformResponse: (response) => {
+        return response.map((book) => ({
+          ...book,
+          // GCS URL already complete, no need to transform
+          image: book.image,
+        }));
+      }
       }),
       getAuthorsOfTheWeek: builder.query({
         query: () => '/authors',
         transformResponse: (response) => {
-          // response is expected to be an array of author objects
           return response.map((author) => ({
             ...author,
-            // Correct the image URL using the authorImage field
-            authorImage: `${API_BASE}/${author.authorImage}`,
+            authorImage: author.authorImage, // already a GCS URL
             books: author.books.map((book) => ({
               ...book,
-              image: `${API_BASE}/${book.image}`,
+              image: book.image, // already a GCS URL
             })),
           }));
-        },
+        }
       }),      
       rateBook: builder.mutation({
         query: ({ bookId, rating }) => ({

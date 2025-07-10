@@ -103,12 +103,10 @@ const EditBook = () => {
     });
 
     // set preview URLs
-    setImage(imgPath ? `http://localhost:5000/${imgPath}` : null);
-    setAuthorImage(
-      author[0]?.authorImage
-        ? `http://localhost:5000/${author[0].authorImage}`
-        : null
-    );
+    // set preview URLs from GCS directly
+    setImage(imgPath || null);
+    setAuthorImage(author[0]?.authorImage || null);
+
   }, [book, reset]);
 
   const handleImageChange = (e) => {

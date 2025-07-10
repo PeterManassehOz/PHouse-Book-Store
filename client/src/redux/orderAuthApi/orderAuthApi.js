@@ -30,19 +30,18 @@ export const orderAuthApi = createApi({
         }),
       }),
   
-      // Endpoint for getting orders for the user
-      getOrdersForUser: builder.query({
-        query: () => '/user',
-        transformResponse: (rawOrders) =>
-          rawOrders.map((order) => ({
-            ...order,
-            productIds: order.productIds.map((product) => ({
-              ...product,
-              image: `${API_BASE}/${product.image}`,  // full URL now baked in
-            })),
+     getOrdersForUser: builder.query({
+      query: () => '/user',
+      transformResponse: (rawOrders) =>
+        rawOrders.map((order) => ({
+          ...order,
+          productIds: order.productIds.map((product) => ({
+            ...product,
+            image: product.image || null, // ✅ Use public GCS URL directly
           })),
-      }),
-  
+        })),
+    }),
+
 
       getOrderStatus: builder.query({
         query: (orderId) => `/status/${orderId}`,

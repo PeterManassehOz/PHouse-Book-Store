@@ -39,24 +39,22 @@ export const flutterwaveAdminAuthApi = createApi({
         query: () => '/transactions',
       }),
 
-      getAllTransactionsForStateAdmin: builder.query({
+    getAllTransactionsForStateAdmin: builder.query({
         query: () => ({
           url: '/admin-transactions',
           method: 'GET',
         }),
         transformResponse: (response) => {
-          const timestamp = new Date().getTime();
           return response.map((txn) => ({
             ...txn,
             userId: {
               ...txn.userId,
-              image: txn.userId?.image
-                ? `${API_BASE}/uploads/${txn.userId.image.split("/").pop()}?t=${timestamp}`
-                : null,
+              image: txn.userId?.image || null, // ✅ Use GCS URL directly
             },
           }));
         },
       }),
+
       
       getAllStatesTransactionsForChiefAdmin: builder.query({
         query: () => ({
@@ -66,24 +64,22 @@ export const flutterwaveAdminAuthApi = createApi({
       }),
       
 
-      getTransactionsByStateForChiefAdmin: builder.query({
-        query: (state) => ({
-          url: `/chief-admin-transactions/${state}`,
-          method: 'GET',
-        }),
-        transformResponse: (response) => {
-          const timestamp = new Date().getTime();
-          return response.map((txn) => ({
-            ...txn,
-            userId: {
-              ...txn.userId,
-              image: txn.userId?.image
-                ? `http://localhost:5000/uploads/${txn.userId.image.split("/").pop()}?t=${timestamp}`
-                : null,
-            },
-          }));
-        },
+    getTransactionsByStateForChiefAdmin: builder.query({
+      query: (state) => ({
+        url: `/chief-admin-transactions/${state}`,
+        method: 'GET',
       }),
+      transformResponse: (response) => {
+        return response.map((txn) => ({
+          ...txn,
+          userId: {
+            ...txn.userId,
+            image: txn.userId?.image || null, // ✅ GCS URL already correct
+          },
+        }));
+      },
+    }),
+
   }),
 });
 

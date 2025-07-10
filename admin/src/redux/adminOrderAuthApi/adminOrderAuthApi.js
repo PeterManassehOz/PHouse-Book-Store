@@ -46,20 +46,16 @@ export const adminOrderAuthApi = createApi({
       query: (state) => `/chief-admin-orders/${state}`,
       providesTags: ['Order'],
       transformResponse: (response) => {
-        const timestamp = Date.now();
         return response.map(order => ({
           ...order,
           userId: {
-            // ◀️ spread _all_ the original populated fields
             ...order.userId,
-            // ◀️ then override just the image URL
-            image: order.userId?.image
-              ? `${API_BASE}/uploads/${order.userId.image.split('/').pop()}?t=${timestamp}`
-              : null,
+            image: order.userId?.image || null, // ✅ Use GCS URL directly
           },
         }));
       },
     }),
+
     
   }),
 });
