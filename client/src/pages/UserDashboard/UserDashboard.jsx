@@ -10,17 +10,29 @@ import { IoIosPerson } from 'react-icons/io';
 import { FaFileInvoice } from "react-icons/fa6";
 import { MdLockReset } from "react-icons/md";
 import { TbCurrencyNaira } from "react-icons/tb";
-import useUserProfile from "../../hooks/useUserProfile";
 import UserTransactions from '../../components/UserTransactions/UserTransactions';
 import LivingSeed from "/LSeed-Logo-1.png";
+import { persistor } from '../../redux/store/store';
+import { useDispatch } from 'react-redux';
+
+import { clearCart } from '../../redux/cartSlice/cartSlice';
+import { resetTheme } from '../../redux/themeSlice/themeSlice';
+import { bookAuthApi } from '../../redux/bookAuthApi/bookAuthApi';
+import { orderAuthApi } from '../../redux/orderAuthApi/orderAuthApi';
+import profileAuthApi, { useGetUserProfileQuery } from '../../redux/profileAuthApi/profileAuthApi';
+import { flutterwaveAuthApi } from '../../redux/flutterwaveAuthApi/flutterwaveAuthApi';
+import { newsLetterAuthApi } from '../../redux/newsLetterAuthApi/newsLetterAuthApi';
+import userAuthApi from '../../redux/userAuthApi/userAuthApi';
 
 
 
 const UserDashboard = () => {
 
+  const dispatch = useDispatch();
   const darkMode = useSelector((state) => state.theme.darkMode);
 
-  const { userProfile, profileImageUrl } = useUserProfile();
+  
+    const { data: userProfile, isLoading: Loading } = useGetUserProfileQuery();
 
   
   const navigate = useNavigate();
@@ -35,15 +47,33 @@ const UserDashboard = () => {
       setSelectedComponent(null);
     };
   
-    const logOut = () => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("phcode");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userProfile");
-      localStorage.removeItem("email");
-      localStorage.removeItem("phonenumber");
-      navigate("/login");
-    };
+    
+  const logOut = async () => {
+    // 1️⃣ pause redux-persist from re-saving anything
+    persistor.pause();
+
+    // 2️⃣ purge whatever persistReducer wrote
+    await persistor.purge();
+
+    // 3️⃣ nuke every browser storage key
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // 4️⃣ reset RTK Query state
+    dispatch(bookAuthApi.util.resetApiState());
+    dispatch(orderAuthApi.util.resetApiState());
+    dispatch(profileAuthApi.util.resetApiState());
+    dispatch(flutterwaveAuthApi.util.resetApiState());
+    dispatch(newsLetterAuthApi.util.resetApiState());
+    dispatch(userAuthApi.util.resetApiState());
+
+    // 5️⃣ reset your non-persisted slices
+    dispatch(clearCart());
+    dispatch(resetTheme());
+
+    // 6️⃣ hard‐reload to boot from a blank slate
+    window.location.href = '/login';
+  };
 
 
 
@@ -86,7 +116,7 @@ const UserDashboard = () => {
           {/* Profile Image & Name */}
           <div className="flex flex-row items-center gap-2 mt-6">
             <img
-              src={profileImageUrl}
+              src={userProfile?.image || "/profileIconBrown.jpeg"}
               alt="Profile"
               className="w-10 h-10 md:w-13 md:h-13 lg:w-13 lg:h-13 object-cover rounded-full shadow-md"
             />

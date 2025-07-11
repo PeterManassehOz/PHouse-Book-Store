@@ -22,6 +22,7 @@ import VerifyOtpWithPhone from './components/VerifyOtpWithPhone/VerifyOtpWithPho
 import ChooseVerification from './components/ChooseVerification/ChooseVerification';
 import MobileViewAuthorYear from './components/MobileViewAuthorYear/MobileViewAuthorYear';
 import ForgotPHCode from './components/ForgotPHCode/ForgotPHCode';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'; 
 
 function App() {
   return (
@@ -47,7 +48,14 @@ const Layout = () => {
       {isHomePage && <Navbar />}
       <div className="min-h-screen">
         <Routes>
-            <Route path="/" element={<Home />} />
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Home />
+                  </ProtectedRoute>
+                }
+              />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/user-dashboard" element={<UserDashboard />} />

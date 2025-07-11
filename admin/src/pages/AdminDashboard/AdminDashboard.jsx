@@ -48,6 +48,7 @@ const AdminDashboard = () => {
 
   const logOut = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("phcode");
     navigate("/admin-login");
   };
 

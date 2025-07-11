@@ -28,7 +28,7 @@ const HeroRecommended = () => {
   const navigate = useNavigate(); 
 
 
-  const { data: fetchedBooks, error, isLoading, refetch } = useGetAllRecommendedBooksQuery();
+  const { data: fetchedBooks, isError, isLoading, refetch } = useGetAllRecommendedBooksQuery();
   const [rateBook, { isLoading: _isRating }] = useRateBookMutation();
   const recommendedBooks = useSelector((state) => state.cart.recommendedBooks); // Get books from Redux store
   const [selectedQuantities, setSelectedQuantities] = useState({});
@@ -66,7 +66,7 @@ const HeroRecommended = () => {
     console.log("Fetched books:", fetchedBooks);
     console.log("Books from Redux:", recommendedBooks);
     if (isLoading) return <Loader />;
-    if (error) return <Error />
+    if (isError) return <p className="text-gray-500 text-center">Get Authenticated</p>
     
   
 

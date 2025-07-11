@@ -24,7 +24,7 @@ const schema = yup.object().shape({
   street: yup.string().required('Street is required'),
   city: yup.string().required('City is required'),
 
-  zipcode: yup.string().matches(/^\d{5}$/, 'Invalid zipcode').required('Zipcode is required'),
+  zipcode: yup.string().matches(/^\d{6}$/, 'Invalid zipcode').required('Zipcode is required'),
 });
 
 
@@ -46,6 +46,9 @@ const CheckOut = () => {
     .reduce((acc, item) => acc + item.price * item.cartQuantity, 0)
     .toFixed(2);
 
+    
+    console.log('Total Cart Items:', totalCartItems);
+    console.log('Cart Items:', cartItems);
     console.log('Total Cart Items:', totalCartItems);
     console.log('Cart Items:', cartItems);
 
@@ -86,6 +89,7 @@ const CheckOut = () => {
       };
     
       try {
+        console.log("🔍 newOrder payload:", newOrder);
         const response = await createOrder(newOrder).unwrap();
         toast.success('Payment Successful! Order created successfully.');
         console.log('Order created:', response);

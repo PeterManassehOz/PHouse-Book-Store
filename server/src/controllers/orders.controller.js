@@ -43,6 +43,7 @@ const Book = require('../models/books.model');
 
 exports.createOrder = async (req, res) => {
   try {
+    console.log("📦 Received order payload:", req.body);
     const user = req.user;
     const { items, totalPrice, name, email, phone, street, city, zipcode } = req.body;
 

@@ -1,9 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 
+const isBrowser = typeof window !== 'undefined';
 
-// read the env var
+// Read the env var
 const API_BASE = import.meta.env.VITE_API_BASE;
+
 
 // log it so you know what the running code is actually using
 console.log('🛰️ API_BASE is:', API_BASE);
@@ -13,7 +15,7 @@ console.log('🛰️ API_BASE is:', API_BASE);
 const baseQuery = fetchBaseQuery({
   baseUrl: `${API_BASE}/books`,
   prepareHeaders: (headers) => {
-    const token = localStorage.getItem('token');
+   const token = isBrowser ? window.localStorage.getItem('token') : null;
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }

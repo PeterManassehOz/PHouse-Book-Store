@@ -4,13 +4,13 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useRef, useState } from "react";
 import * as yup from "yup";
 import { 
+  useGetUserProfileQuery,
  useUpdateProfileMutation, 
 } from "../../redux/profileAuthApi/profileAuthApi";
 import { toast } from "react-toastify";
 import Loader from "../../components/Loader/Loader";
 import Error from "../../components/Error/Error";
 import { useSelector } from "react-redux";
-import useUserProfile from "../../hooks/useUserProfile";
 
 
 
@@ -18,15 +18,12 @@ import useUserProfile from "../../hooks/useUserProfile";
 
 
 const Profile = () => {
-  const { userProfile, profileImageUrl, isLoading: Loading } = useUserProfile();
+
+  const { data: userProfile, isLoading: Loading } = useGetUserProfileQuery();
   //Mutation for updating profile
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
 
   const [showError, setShowError] = useState(false);
-
-  
- console.log("Fetched User Profile:", userProfile);
-
 
   // Validation schema
   const schema = yup.object().shape({
@@ -109,7 +106,7 @@ const Profile = () => {
         {/* Profile Preview */}
         <div className="flex flex-col items-center w-full md:w-1/2 p-4 rounded-lg">
         <img
-          src={profileImageUrl}
+           src={userProfile?.image || "/profileIconBrown.jpeg"}
           alt="Profile"
           className="w-28 h-28 md:w-40 md:h-40 object-cover rounded-full shadow-md"
         />
