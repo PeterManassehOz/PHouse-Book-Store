@@ -9,7 +9,7 @@ const { adminProtect } = require("../middleware/adminProtect");
 const router = express.Router();
 
 router.post("/subscribe", protect, subscribeNewsletter);
-router.post("/subscription-status", protect, getSubscriptionStatus);
+router.post("/status", protect, getSubscriptionStatus);
 router.get('/admin-subscribers', adminAuthMiddleware, adminProtect, getAllSubscribersForStateAdmin);
 router.post('/send-newsletter', adminAuthMiddleware, adminProtect, sendNewsletter);
 

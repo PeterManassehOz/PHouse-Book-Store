@@ -30,7 +30,7 @@ const Signup = () => {
 
 
   const onSubmit = async (data) => {
-    data.phonenumber = "+15005550006"; // for testing purposes, remove this line in production
+   
 
     // 1) Format the phone into E.164
     let phone = data.phonenumber.trim();
@@ -55,7 +55,7 @@ const Signup = () => {
       localStorage.setItem('token', response.token);
       localStorage.setItem('phcode', data.phcode);
       localStorage.setItem('email', data.email);
-      localStorage.setItem('phonenumber', data.phonenumber);
+      localStorage.setItem('phonenumber', phone);
       console.log(data);
       
       toast.success('Signup successful! Now choose how to verify.');

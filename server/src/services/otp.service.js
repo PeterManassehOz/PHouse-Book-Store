@@ -66,11 +66,15 @@ async function sendPhoneOtp(phonenumber) {
   console.log(`🔐 OTP sent to ${phonenumber}:`, phoneOtp); // ✅ Log the OTP here
 
 
-  await twilioClient.messages.create({
-    body: `Your verification code is ${phoneOtp}`,
-    from: process.env.TWILIO_PHONE_NUMBER,
-    to: phonenumber,
-  });
+  if (process.env.NODE_ENV === 'production') {
+    // only send SMS in prod
+    await twilioClient.messages.create({
+      body: `Your verification code is ${phoneOtp}`,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to:   phonenumber,
+    });
+  }
+
 
   //Dev only: Log the OTP to the console
   return phoneOtp;
