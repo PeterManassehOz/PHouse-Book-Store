@@ -308,74 +308,76 @@ exports.getBookById = async (req, res) => {
 
 
 exports.getAuthorsOfTheWeek = async (req, res) => {
-    try {
-        const user = req.user; // Assumes you get the user's state from JWT
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  try {
+    const user       = req.user; 
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-        console.log("Fetching orders from:", sevenDaysAgo, "for state:", user.state);
+    // 1. Get all books in this state
+    const booksInState = await Book.find({ state: user.state })
+                                   .select('_id author');
+    const bookIds = booksInState.map(b => b._id.toString());
 
-        // 1. Find books in the user's state
-        const booksInState = await Book.find({ state: user.state }).select('_id author');
+    // 2. Find orders in last 7 days containing any of these books
+    const orders = await Order.find({
+      createdAt: { $gte: sevenDaysAgo },
+      'items.bookId': { $in: bookIds }
+    }).populate({
+      path: 'items.bookId',
+      select: 'author'
+    });
 
-        const bookIds = booksInState.map(book => book._id);
-        const bookAuthorsMap = {};
-        booksInState.forEach(book => {
-            bookAuthorsMap[book._id.toString()] = book.author; // Save authors by book ID
-        });
+    const authorCounts = {};
 
-        // 2. Find orders from the last 7 days that contain those books
-        const orders = await Order.find({
-            createdAt: { $gte: sevenDaysAgo },
-            productIds: { $in: bookIds }
-        }).populate({
-            path: 'productIds',
-            select: 'author'
-        });
+    // 3. Count up each author
+    orders.forEach(order => {
+      order.items.forEach(item => {
+        const book    = item.bookId;         // populated Book document
+        const authors = book.author;         // could be array or single
 
-        const authorCounts = {};
-
-        // 3. Count appearances of authors
-        orders.forEach(order => {
-            order.productIds.forEach(book => {
-                const authors = book.author;
-                if (Array.isArray(authors)) {
-                    authors.forEach(author => {
-                        const key = author.name;
-
-                        if (!authorCounts[key]) {
-                            authorCounts[key] = {
-                                name: author.name,
-                                bio: author.bio,
-                                authorImage: author.authorImage,
-                                count: 0,
-                                books: []
-                            };
-                        }
-                        authorCounts[key].count++;
-                    });
-                }
-            });
-        });
-
-        // 4. Attach books written by each author (in the same state)
-        for (const authorKey in authorCounts) {
-            const books = await Book.find({
-                "author.name": authorCounts[authorKey].name,
-                state: user.state
-            }).select("title image description");
-
-            authorCounts[authorKey].books = books;
+        if (Array.isArray(authors)) {
+          authors.forEach(a => {
+            if (!authorCounts[a.name]) {
+              authorCounts[a.name] = {
+                name:        a.name,
+                bio:         a.bio,
+                authorImage: a.authorImage,
+                count:       0,
+                books:       []
+              };
+            }
+            authorCounts[a.name].count += item.quantity;
+          });
+        } else {
+          // if you ever store a single author as object
+          const a = authors;
+          if (!authorCounts[a.name]) {
+            authorCounts[a.name] = { /* …same as above… */ };
+          }
+          authorCounts[a.name].count += item.quantity;
         }
+      });
+    });
 
-        const sortedAuthors = Object.values(authorCounts).sort((a, b) => b.count - a.count);
+    // 4. Attach all the books they’ve written in this state
+    await Promise.all(Object.values(authorCounts).map(async (author) => {
+      author.books = await Book.find({
+        'author.name': author.name,
+        state: user.state
+      }).select('title image description');
+    }));
 
-        res.status(200).json(sortedAuthors);
-    } catch (error) {
-        console.error("Error in getAuthorsOfTheWeek:", error);
-        res.status(500).json({ message: error.message });
-    }
+    // 5. Sort by how many times they appeared
+    const sorted = Object.values(authorCounts)
+                         .sort((a,b) => b.count - a.count);
+
+    res.status(200).json(sorted);
+  } catch (err) {
+    console.error("Error in getAuthorsOfTheWeek:", err);
+    res.status(500).json({ message: err.message });
+  }
 };
+
 
 
 exports.deleteBook = async (req, res) => {
