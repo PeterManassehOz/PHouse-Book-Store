@@ -88,13 +88,10 @@ export const bookAuthApi = createApi({
             method: 'GET',
           };
         },
-         transformResponse: (response) => {
-        return response.map((book) => ({
-          ...book,
-          // GCS URL already complete, no need to transform
-          image: book.image,
-        }));
-      }
+         transformResponse: (response) => ({
+          ...response,
+          image: response.image,
+        }),
       }),
       getAuthorsOfTheWeek: builder.query({
         query: () => '/authors',
