@@ -105,7 +105,7 @@ exports.adminLogin = async (req, res) => {
         // Check if admin exists
         const admin = await Admin.findOne({ state, phcode });
         if (!admin) {
-            return res.status(401).json({ message: 'Invalid phone code, state, or password' });
+            return res.status(401).json({ message: 'Invalid PHCode, state, or password' });
         }
 
         // Verify password and generate token

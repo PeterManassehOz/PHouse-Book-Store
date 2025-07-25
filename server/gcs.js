@@ -1,4 +1,5 @@
-/*const { Storage } = require('@google-cloud/storage');
+/* For localhost development, you can use the following code snippet to set up Google Cloud Storage.
+const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 const fs = require('fs');
 
@@ -16,12 +17,12 @@ const storage = new Storage({
 
 const bucket = storage.bucket(process.env.GOOGLE_STORAGE_BUCKET);
 
-module.exports = bucket;*/
+module.exports = bucket;
+*/
 
 
 
-
-
+// For production, you can use the following code snippet to set up Google Cloud Storage.
 const { Storage } = require('@google-cloud/storage');
 
 let credentials;
